@@ -5,6 +5,7 @@ Too Many Parts Server
 from peewee import SqliteDatabase
 from peewee import MySQLDatabase
 from peewee import PostgresqlDatabase
+from peewee import Model as PeeweeModel
 from flask import current_app
 from logging import getLogger
 
@@ -84,3 +85,8 @@ class Database(object):
         else:
             # Remove this instance if no valid DB_TYPE is configured
             Database.instance = None
+
+
+class Model(PeeweeModel):
+    class Meta:
+        database = Database.get()
