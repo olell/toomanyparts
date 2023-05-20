@@ -1,19 +1,29 @@
+"""
+Too Many Parts Server
+
+This file is imported by flask to load the configuration. This file loads
+from the config_keys list the according environment variables and stores
+them in same called variables
+"""
+
 import os
 
-config_keys = [
+default_config = {
     # Misc
-    "SECRET_KEY",  # Flask Secret Key
+    "SECRET_KEY": "",  # Flask Secret Key
+    "LOGGING_LEVEL": "INFO",
     ## Database
-    "DB_TYPE",  # Database type (one of sqlite, mysql, postgresql)
+    "DB_TYPE": "sqlite",  # Database type (one of sqlite, mysql, postgresql)
     # Keys for DB_TYPE mysql
-    "DB_LOCATION",  # Database path
+    "DB_LOCATION": "./db.sqlite3",  # Database path
     # Keys for DB_TYPE mysql or postgresql
-    "DB_HOST",
-    "DB_PORT",
-    "DB_DATABASE",
-    "DB_USER",
-    "DB_PASS",
-]
+    "DB_HOST": None,
+    "DB_PORT": None,
+    "DB_DATABASE": None,
+    "DB_USER": None,
+    "DB_PASS": None,
+}
 
-for key in config_keys:
-    exec(f"{key} = os.environ.get('{key}', None)")
+_g = globals()
+for key in default_config:
+    _g[key] = os.environ.get(key, default_config[key])
