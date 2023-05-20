@@ -31,7 +31,7 @@ class Unit(Model):
         else:
             return value * self.smaller_mul, self.smaller
 
-    def get_biggest(self, value):
+    def _hr_bigger(self, value):
         """Returns the given value transformed to the biggest unit where
         the value is above 1"""
         unit = self
@@ -42,7 +42,7 @@ class Unit(Model):
                 return value, unit
         return unit.get_smaller(value)
 
-    def get_smallest(self, value):
+    def _hr_smaller(self, value):
         """Returns the given value transformed to the smallest unit where
         the value is below 1000"""
         unit = self
@@ -53,8 +53,38 @@ class Unit(Model):
                 return value, unit
         return unit.get_bigger(value)
 
+    def get_human_readable(self, value):
+        """Returns the given value converted to the "human readable" unit,
+        for example 1000nF will become 1uF or 0.1uF will become 100nF"""
+        if value >= 1 and value < 1000:
+            return value, self
+        elif value < 1:
+            return self._hr_smaller(value)
+        elif value >= 1000:
+            return self._hr_bigger(value)
+
+    def get_base(self, value):
+        if self.base is None or self.base == self:
+            return value, self
+        # This is a bit hacky, but in the first step I go to the biggest value and after that
+        # I go from the biggest to the smallest. If I reach the base at any point the value is
+        # returned
+        unit = self
+        while unit.bigger is not None:
+            value, unit = unit.get_bigger(value)
+            if self.base == unit:
+                return value, unit
+        while unit.smaller is not None:
+            value, unit = unit.get_smaller(value)
+            if self.base == unit:
+                return value, unit
+        return value, unit
+
     def __str__(self):
         return self.name
+
+    def __call__(self, v):
+        return self.get_base(v)
 
 
 class PartCategory(Model):
