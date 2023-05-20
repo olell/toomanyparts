@@ -13,9 +13,48 @@ class Unit(Model):
 
     base = peewee.ForeignKeyField("self", null=True)
     smaller = peewee.ForeignKeyField("self", null=True)
-    smaller_div = peewee.IntegerField(default=1000)
+    smaller_mul = peewee.IntegerField(default=1000)
     bigger = peewee.ForeignKeyField("self", null=True)
-    bigger_mul = peewee.IntegerField(default=1000)
+    bigger_div = peewee.IntegerField(default=1000)
+
+    def get_bigger(self, value):
+        """Returns the given value transformed to the next bigger unit"""
+        if self.bigger is None:
+            return value, self
+        else:
+            return value / self.bigger_div, self.bigger
+
+    def get_smaller(self, value):
+        """Returns the given value transformed to the next smaller unit"""
+        if self.smaller is None:
+            return value, self
+        else:
+            return value * self.smaller_mul, self.smaller
+
+    def get_biggest(self, value):
+        """Returns the given value transformed to the biggest unit where
+        the value is above 1"""
+        unit = self
+        while value >= 1:
+            _prev = unit
+            value, unit = unit.get_bigger(value)
+            if _prev == unit:
+                return value, unit
+        return unit.get_smaller(value)
+
+    def get_smallest(self, value):
+        """Returns the given value transformed to the smallest unit where
+        the value is below 1000"""
+        unit = self
+        while value < 1000:
+            _prev = unit
+            value, unit = unit.get_smaller(value)
+            if _prev == unit:
+                return value, unit
+        return unit.get_bigger(value)
+
+    def __str__(self):
+        return self.name
 
 
 class PartCategory(Model):
