@@ -38,3 +38,8 @@ with app.app_context():
     from tomapa.models import Database
 
     Database()
+
+    # Fill database with default content (if not already filled)
+    from tomapa.models.content import create_content
+
+    create_content()
