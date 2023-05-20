@@ -6,9 +6,32 @@ Too Many Parts Server
 from flask import Flask
 import os
 
+from logging.config import dictConfig
 
+# Creating flask app
 app = Flask(__name__)
 app.config.from_pyfile("config.py")
+
+# Configuring logger
+dictConfig(
+    {
+        "version": 1,
+        "formatters": {
+            "default": {
+                "format": "[%(asctime)s] %(levelname)s: %(message)s",
+            }
+        },
+        "handlers": {
+            "wsgi": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://flask.logging.wsgi_errors_stream",
+                "formatter": "default",
+            }
+        },
+        "root": {"level": app.config.get("LOGGING_LEVEL"), "handlers": ["wsgi"]},
+    }
+)
+
 
 with app.app_context():
     # Init database in app context
