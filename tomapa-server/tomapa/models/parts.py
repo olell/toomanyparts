@@ -70,12 +70,12 @@ class Unit(Model):
         # I go from the biggest to the smallest. If I reach the base at any point the value is
         # returned
         unit = self
-        while unit.bigger is not None:
-            value, unit = unit.get_bigger(value)
-            if self.base == unit:
-                return value, unit
         while unit.smaller is not None:
             value, unit = unit.get_smaller(value)
+            if self.base == unit:
+                return value, unit
+        while unit.bigger is not None:
+            value, unit = unit.get_bigger(value)
             if self.base == unit:
                 return value, unit
         return value, unit
@@ -102,9 +102,32 @@ class PartProperty(Model):
     display_name = peewee.CharField()
 
     value = peewee.CharField()
-    value_type = peewee.CharField()  # int, float, string
+    value_type = peewee.CharField()  # int, float, str, bool
 
-    unit = peewee.ForeignKeyField(Unit)
+    unit = peewee.ForeignKeyField(Unit, null=True)
+
+    def value(self):
+        """Returns the value converted to the correct type"""
+        try:
+            if self.value_type == "int":
+                return int(self.value)
+            if self.value_type == "float":
+                return float(self.value)
+            if self.value_type == "bool":
+                return self.value == "True"
+            if self.value_type == str:
+                return self.value
+        except:
+            pass
+        return None
 
 
-Database.register_models(Unit, PartCategory, Part, PartProperty)
+class PropertyTemplate(Model):
+    name = peewee.CharField()
+    display_name = peewee.CharField()
+
+    value_type = peewee.CharField()
+    unit = peewee.ForeignKeyField(Unit, null=True)
+
+
+Database.register_models(Unit, PartCategory, Part, PartProperty, PropertyTemplate)
