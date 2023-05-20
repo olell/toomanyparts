@@ -14,10 +14,10 @@ def create_unit_models(*names, base=None, factor=1000):
             field.base = base_model
         if i > 0:
             field.smaller = fields[i - 1][0]
-            field.smaller_div = factor
+            field.smaller_mul = factor
         if i < len(fields) - 1:
             field.bigger = fields[i + 1][0]
-            field.bigger_mul = factor
+            field.bigger_div = factor
         field.save()
 
 
