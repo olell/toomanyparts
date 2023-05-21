@@ -4,13 +4,15 @@ Too Many Parts Server
 
 
 from flask import Flask
-import os
+from flask_restful import Api
 
 from logging.config import dictConfig
 
 # Creating flask app
 app = Flask(__name__)
 app.config.from_pyfile("config.py")
+
+flask_api = Api(app)
 
 # Configuring logger
 dictConfig(
@@ -43,3 +45,12 @@ with app.app_context():
     from tomapa.models.content import create_content
 
     create_content()
+
+# API Resources
+from tomapa.api.categories import CategoriesApi
+from tomapa.api.categories import CategoryApi
+
+flask_api.add_resource(CategoriesApi, "/categories")
+flask_api.add_resource(CategoryApi, "/category")
+
+app.logger.info("Hey there!")
