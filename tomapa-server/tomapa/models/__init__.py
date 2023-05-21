@@ -9,6 +9,8 @@ from peewee import Model as PeeweeModel
 from flask import current_app
 from logging import getLogger
 
+from tomapa.util.helper import is_safe_json
+
 from playhouse.shortcuts import ReconnectMixin
 
 
@@ -90,3 +92,16 @@ class Database(object):
 class Model(PeeweeModel):
     class Meta:
         database = Database.get()
+
+    def as_dict(self):
+        """Returns this model as dict
+        (if the model contains foreign keys, the referenced models are recursively added)
+        """
+        result = {}
+        for field in self._meta.sorted_fields:
+            value = self.__getattribute__(field.name)
+            if "as_dict" in dir(value):
+                value = value.as_dict()
+            if is_safe_json({field.name: value}):
+                result.update({field.name: value})
+        return result
