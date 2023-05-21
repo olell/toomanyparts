@@ -4,6 +4,7 @@ Too Many Parts Server
 Part (and related) models
 """
 from tomapa.models import Database, Model
+from tomapa.models.storage import StorageLocation
 
 import peewee
 
@@ -33,6 +34,7 @@ class Part(Model):
     stock = peewee.IntegerField(default=0)
     category = peewee.ForeignKeyField(PartCategory)
     description = peewee.TextField()
+    location = peewee.ForeignKeyField(StorageLocation)
 
 
 class PartProperty(Model):
