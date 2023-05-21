@@ -22,8 +22,11 @@ def create_unit_models(*names, base=None, factor=1000):
 
 
 def create_units():
-    create_unit_models("mΩ", "Ω", "kΩ", "MΩ", base="Ω")
-    create_unit_models("pF", "nF", "uF", "mF", "F", base="F")
-    create_unit_models("nH", "uH", "mH", "H", base="H")
-    create_unit_models("mV", "V", "kV", base="V")
+    create_unit_models("mΩ", "Ω", "kΩ", "MΩ", base="mΩ")
+    create_unit_models("pF", "nF", "uF", "mF", "F", base="pF")
+    create_unit_models("nH", "uH", "mH", "H", base="nH")
+    create_unit_models("mV", "V", "kV", base="mV")
     create_unit_models("Hz", "kHz", "MHz", "GHz", base="Hz")
+    create_unit_models("mW", "W", "kW", base="mW")
+    create_unit_models("°C", base="°C")
+    create_unit_models("mAh", "Ah", base="mAh")
