@@ -49,8 +49,10 @@ with app.app_context():
 # API Resources
 from tomapa.api.categories import CategoriesApi
 from tomapa.api.categories import CategoryApi
+from tomapa.api.parts import PartApi
 
 flask_api.add_resource(CategoriesApi, "/categories")
 flask_api.add_resource(CategoryApi, "/category")
+flask_api.add_resource(PartApi, "/part")
 
 app.logger.info("Hey there!")
