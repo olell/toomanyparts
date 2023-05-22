@@ -176,3 +176,8 @@ class PropertyApi(Resource):
     def put(self):
         updated_property = load_schema_or_abort(PartPropertyPutSchema)
         return updated_property.as_dict(custom={"part": updated_property.part.id}), 200
+
+    def delete(self):
+        property = load_schema_or_abort(PartPropertyGetSchema)
+        property.delete_instance()
+        return {}, 204
