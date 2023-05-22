@@ -91,17 +91,23 @@ class Database(object):
 
 class Model(PeeweeModel):
     dict_backrefs = {}
+    dict_omit = []
 
     class Meta:
         database = Database.get()
+
+    def dict_hook(self):
+        return None
 
     def as_dict(self, omit=[]):
         """Returns this model as dict
         (if the model contains foreign keys, the referenced models are recursively added)
         """
+        fields_to_omit = omit + self.dict_omit
+        print(fields_to_omit)
         result = {}
         for field in self._meta.sorted_fields:
-            if not field.name in omit:
+            if not field.name in fields_to_omit:
                 value = self.__getattribute__(field.name)
                 if "as_dict" in dir(value):
                     value = value.as_dict()
@@ -116,5 +122,9 @@ class Model(PeeweeModel):
             brjson = {backref: fields}
             if is_safe_json(brjson):
                 result.update(brjson)
+
+        hook = self.dict_hook()
+        if hook is not None:
+            result.update(hook)
 
         return result

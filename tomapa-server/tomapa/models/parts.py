@@ -6,10 +6,15 @@ Part (and related) models
 from tomapa.models import Database, Model
 from tomapa.models.storage import StorageLocation
 
+from tomapa.util.helper import convert_value_and_type
+from tomapa.util.units import get_base
+from tomapa.util.units import get_human_readable
+
 import peewee
 
 
 class Unit(Model):
+    dict_omit = ["base", "smaller", "bigger", "smaller_mul", "bigger_div"]
     name = peewee.CharField()  # "Ω, F, Hz, etc."
 
     base = peewee.ForeignKeyField("self", null=True)
@@ -53,18 +58,25 @@ class PartProperty(Model):
 
     def get_value(self):
         """Returns the value converted to the correct type"""
-        try:
-            if self.value_type == "int":
-                return int(self.value)
-            if self.value_type == "float":
-                return float(self.value)
-            if self.value_type == "bool":
-                return self.value == "True"
-            if self.value_type == "str":
-                return self.value
-        except:
-            pass
-        return None
+        return convert_value_and_type(self.value, self.value_type)
+
+    def dict_hook(self):
+        if self.unit is None:
+            return None
+
+        value = self.get_value()
+        if value is None:
+            return None
+
+        base_value, base_unit = get_base(value, self.unit)
+        hr_value, hr_unit = get_human_readable(value, self.unit)
+        return {
+            "value": value,
+            "base_value": base_value,
+            "base_unit": base_unit.as_dict(),
+            "hr_value": hr_value,
+            "hr_unit": hr_unit.as_dict(),
+        }
 
 
 class PropertyTemplate(Model):
