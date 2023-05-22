@@ -3,6 +3,7 @@ from flask_restful import Resource
 from marshmallow import Schema
 from marshmallow import fields
 from marshmallow import post_load
+from marshmallow import validate
 
 from tomapa.api import load_schema_or_abort
 
@@ -42,7 +43,9 @@ class PartPropertyPostSchema(Schema):
     display_name = fields.String(required=True)
 
     value = fields.String(required=True)
-    value_type = fields.String(required=True)
+    value_type = fields.String(
+        required=True, validate=validate.OneOf(["float", "int", "str", "bool"])
+    )
 
     unit = fields.Integer()
 
@@ -86,6 +89,59 @@ class PartPropertyPostSchemaRequiredPart(PartPropertyPostSchema):
     part = fields.Integer(required=True)
 
 
+class PartPropertyPutSchema(Schema):
+    id = fields.Integer(required=True)
+
+    name = fields.String()
+    display_name = fields.String()
+
+    value = fields.String()
+    value_type = fields.String(validate=validate.OneOf(["float", "int", "str", "bool"]))
+
+    unit = fields.Integer()
+
+    @post_load
+    def update_property(self, data, **_):
+        property = PartProperty.get_or_none(PartProperty.id == data["id"])
+        if property is None:
+            return
+
+        new_name = data.get("name", None)
+        if new_name is not None:
+            property.name = new_name
+
+        new_display_name = data.get("display_name", None)
+        if new_display_name is not None:
+            property.display_name = new_display_name
+
+        new_value = data.get("value", None)
+        new_value_type = data.get("value_type", None)
+        if new_value is not None and new_value_type is not None:
+            property.value = new_value
+            property.value_type = new_value_type
+
+        # Testing and converting value + type
+        value = convert_value_and_type(property.value, property.value_type)
+        if value is None:
+            return None
+
+        # Getting unit
+        new_unit_id = data.get("unit", None)
+        new_unit = None
+        if new_unit_id is not None:
+            new_unit = Unit.get_or_none(Unit.id == new_unit_id)
+            if new_unit is None:
+                return None
+
+        if new_unit is not None:
+            value, unit = get_base(value, unit)
+            property.value = str(value)
+            property.unit = unit
+
+        property.save()
+        return property
+
+
 ###############################################################
 #                           Endpoints                         #
 ###############################################################
@@ -116,3 +172,7 @@ class PropertyApi(Resource):
         new_property.save()
 
         return new_property.as_dict(custom={"part": new_property.part.id}), 200
+
+    def put(self):
+        updated_property = load_schema_or_abort(PartPropertyPutSchema)
+        return updated_property.as_dict(custom={"part": updated_property.part.id}), 200
