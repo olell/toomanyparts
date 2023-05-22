@@ -121,3 +121,13 @@ class PartApi(Resource):
     def post(self):
         new_part = load_schema_or_abort(PartPostSchema)
         return new_part.as_dict(), 200
+
+    def delete(self):
+        part = load_schema_or_abort(PartGetSchema)
+
+        for property in part.properties:
+            property.delete_instance()
+
+        part.delete_instance()
+
+        return {}, 204
