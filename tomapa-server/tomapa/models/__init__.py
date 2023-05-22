@@ -104,7 +104,6 @@ class Model(PeeweeModel):
         (if the model contains foreign keys, the referenced models are recursively added)
         """
         fields_to_omit = omit + self.dict_omit
-        print(fields_to_omit)
         result = {}
         for field in self._meta.sorted_fields:
             if not field.name in fields_to_omit:
