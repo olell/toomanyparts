@@ -108,6 +108,51 @@ class PartPostSchema(Schema):
         return new_part
 
 
+class PartPutSchema(Schema):
+    """
+    Schema used to update an existing part and its properties
+    """
+
+    id = fields.Integer(required=True)
+    stock = fields.Integer()
+    category = fields.Integer()
+    description = fields.String()
+    location = fields.Integer()
+
+    @post_load
+    def update_part(self, data, **_):
+        part = Part.get_or_none(Part.id == data["id"])
+        if part is None:
+            return None
+
+        new_stock = data.get("stock", None)
+        if new_stock is not None:
+            part.stock = new_stock
+
+        new_category_id = data.get("category", None)
+        if new_category_id is not None:
+            new_category = PartCategory.get_or_none(PartCategory.id == new_category_id)
+            if new_category is None:
+                return None
+            part.category = new_category
+
+        new_description = data.get("description", None)
+        if new_description is not None:
+            part.description = new_description
+
+        new_location_id = data.get("location", None)
+        if new_location_id is not None:
+            new_location = StorageLocation.get_or_none(
+                StorageLocation.id == new_location_id
+            )
+            if new_location is None:
+                return None
+            part.location = new_location
+
+        part.save()
+        return part
+
+
 ###############################################################
 #                           Endpoints                         #
 ###############################################################
@@ -122,6 +167,10 @@ class PartApi(Resource):
         new_part = load_schema_or_abort(PartPostSchema)
         return new_part.as_dict(), 200
 
+    def put(self):
+        updated_part = load_schema_or_abort(PartPutSchema)
+        return updated_part.as_dict(), 200
+
     def delete(self):
         part = load_schema_or_abort(PartGetSchema)
 
@@ -131,3 +180,11 @@ class PartApi(Resource):
         part.delete_instance()
 
         return {}, 204
+
+
+class PartsApi(Resource):
+    def get(self):
+        parts = []
+        for part in Part.select():
+            parts.append(part.as_dict())
+        return {"parts": parts}
