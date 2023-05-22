@@ -15,5 +15,4 @@ def create_content():
     create_categories()
 
     # Create a single dummy storage location
-    dummy_location = StorageLocation(name="Default Storage Location")
-    dummy_location.save(1)
+    StorageLocation.get_or_create(name="Default Storage Location")
