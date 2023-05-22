@@ -33,6 +33,8 @@ class PartCategory(Model):
 
 
 class Part(Model):
+    dict_backrefs = {"properties": "part"}
+
     stock = peewee.IntegerField(default=0)
     category = peewee.ForeignKeyField(PartCategory, backref="parts")
     description = peewee.TextField()
@@ -49,7 +51,7 @@ class PartProperty(Model):
 
     unit = peewee.ForeignKeyField(Unit, null=True)
 
-    def value(self):
+    def get_value(self):
         """Returns the value converted to the correct type"""
         try:
             if self.value_type == "int":
@@ -58,7 +60,7 @@ class PartProperty(Model):
                 return float(self.value)
             if self.value_type == "bool":
                 return self.value == "True"
-            if self.value_type == str:
+            if self.value_type == "str":
                 return self.value
         except:
             pass
