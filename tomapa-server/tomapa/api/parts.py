@@ -8,12 +8,9 @@ from tomapa.api import load_schema_or_abort
 
 from tomapa.models.parts import Part
 from tomapa.models.parts import PartCategory
-from tomapa.models.parts import PartProperty
-from tomapa.models.parts import Unit
 from tomapa.models.storage import StorageLocation
 
-from tomapa.util.units import get_base
-from tomapa.util.helper import convert_value_and_type
+from tomapa.api.properties import PartPropertyPostSchema
 
 
 ###############################################################
@@ -29,47 +26,6 @@ class PartGetSchema(Schema):
     @post_load
     def get_part(self, data, **_):
         return Part.get_or_none(Part.id == data["id"])
-
-
-class PartPropertyPostSchema(Schema):
-    """
-    Schema used to create a part property
-    """
-
-    name = fields.String(required=True)
-    display_name = fields.String(required=True)
-
-    value = fields.String(required=True)
-    value_type = fields.String(required=True)
-
-    unit = fields.Integer()
-
-    @post_load
-    def create_property(self, data, **_):
-        # Getting unit
-        unit_id = data.get("unit", None)
-        unit = None
-        if unit_id is not None:
-            unit = Unit.get_or_none(Unit.id == unit_id)
-            if unit is None:
-                return None
-
-        # Testing and converting value + type
-        value = convert_value_and_type(data["value"], data["value_type"])
-        if value is None:
-            return None
-
-        if unit is not None:
-            value, unit = get_base(value, unit)
-
-        new_property = PartProperty(
-            name=data["name"],
-            display_name=data["display_name"],
-            value=str(value),
-            value_type=data["value_type"],
-            unit=unit,
-        )
-        return new_property
 
 
 class PartPostSchema(Schema):
