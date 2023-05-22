@@ -51,10 +51,12 @@ from tomapa.api.categories import CategoriesApi
 from tomapa.api.categories import CategoryApi
 from tomapa.api.parts import PartApi
 from tomapa.api.parts import PartsApi
+from tomapa.api.properties import PropertyApi
 
 flask_api.add_resource(CategoriesApi, "/categories")
 flask_api.add_resource(CategoryApi, "/category")
 flask_api.add_resource(PartApi, "/part")
 flask_api.add_resource(PartsApi, "/parts")
+flask_api.add_resource(PropertyApi, "/part/property")
 
 app.logger.info("Hey there!")
