@@ -17,7 +17,7 @@ def convert_value_and_type(value, value_type):
         if value_type == "float":
             return float(value)
         if value_type == "bool":
-            return value == "True"
+            return value == "True" or value == "true" or value == "1"
         if value_type == "str":
             return value
     except:
