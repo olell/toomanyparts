@@ -53,6 +53,7 @@ from tomapa.api.parts import PartApi
 from tomapa.api.parts import PartsApi
 from tomapa.api.properties import PropertyApi
 from tomapa.api.properties import PropertiesApi
+from tomapa.api.properties import PropertyTemplatesApi
 
 flask_api.add_resource(CategoriesApi, "/categories")
 flask_api.add_resource(CategoryApi, "/category")
@@ -60,5 +61,6 @@ flask_api.add_resource(PartApi, "/part")
 flask_api.add_resource(PartsApi, "/parts")
 flask_api.add_resource(PropertyApi, "/part/property")
 flask_api.add_resource(PropertiesApi, "/properties")
+flask_api.add_resource(PropertyTemplatesApi, "/properties/templates")
 
 app.logger.info("Hey there!")
