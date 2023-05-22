@@ -99,11 +99,11 @@ class Model(PeeweeModel):
     def dict_hook(self):
         return None
 
-    def as_dict(self, omit=[]):
+    def as_dict(self, omit=[], custom={}):
         """Returns this model as dict
         (if the model contains foreign keys, the referenced models are recursively added)
         """
-        fields_to_omit = omit + self.dict_omit
+        fields_to_omit = omit + self.dict_omit + list(custom.keys())
         result = {}
         for field in self._meta.sorted_fields:
             if not field.name in fields_to_omit:
@@ -125,5 +125,7 @@ class Model(PeeweeModel):
         hook = self.dict_hook()
         if hook is not None:
             result.update(hook)
+
+        result.update(custom)
 
         return result

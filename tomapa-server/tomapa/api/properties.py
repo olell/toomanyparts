@@ -33,7 +33,6 @@ class PropertyGetSchema(Schema):
 class PropertyApi(Resource):
     def get(self):
         property = load_schema_or_abort(PropertyGetSchema, "args")
-        result = property.as_dict(["part"])
-        result.update({"part": property.part.id})
+        result = property.as_dict(custom={"part": property.part.id})
 
         return result, 200
