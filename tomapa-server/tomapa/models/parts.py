@@ -61,22 +61,27 @@ class PartProperty(Model):
         return convert_value_and_type(self.value, self.value_type)
 
     def dict_hook(self):
-        if self.unit is None:
-            return None
-
+        result = {}
         value = self.get_value()
         if value is None:
-            return None
+            return result
+
+        result.update({"value": value})
+
+        if self.unit is None:
+            return result
 
         base_value, base_unit = get_base(value, self.unit)
         hr_value, hr_unit = get_human_readable(value, self.unit)
-        return {
-            "value": value,
-            "base_value": base_value,
-            "base_unit": base_unit.as_dict(),
-            "hr_value": hr_value,
-            "hr_unit": hr_unit.as_dict(),
-        }
+        result.update(
+            {
+                "base_value": base_value,
+                "base_unit": base_unit.as_dict(),
+                "hr_value": hr_value,
+                "hr_unit": hr_unit.as_dict(),
+            }
+        )
+        return result
 
 
 class PropertyTemplate(Model):
