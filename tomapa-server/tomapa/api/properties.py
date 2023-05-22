@@ -11,6 +11,7 @@ from tomapa.models.parts import PartProperty
 from tomapa.models.parts import PartProperty
 from tomapa.models.parts import Unit
 from tomapa.models.parts import Part
+from tomapa.models.parts import PartCategory
 
 from tomapa.util.units import get_base
 from tomapa.util.helper import convert_value_and_type
@@ -142,6 +143,10 @@ class PartPropertyPutSchema(Schema):
         return property
 
 
+class PropertiesGetSchema(Schema):
+    category = fields.Integer()
+
+
 ###############################################################
 #                           Endpoints                         #
 ###############################################################
@@ -181,3 +186,35 @@ class PropertyApi(Resource):
         property = load_schema_or_abort(PartPropertyGetSchema)
         property.delete_instance()
         return {}, 204
+
+
+def get_category_properties(category):
+    result = set()
+    for child in category.children:
+        result.update(get_category_properties(child))
+
+    for property in PartProperty.select():
+        if property.part.category == category:
+            result.add(property.name)
+
+    return result
+
+
+class PropertiesApi(Resource):
+    def get(self):
+        """Returns all unique property names"""
+        filters = load_schema_or_abort(PropertiesGetSchema, "args")
+
+        category_id = filters.get("category", None)
+        result = set()
+        if category_id is not None:
+            category = PartCategory.get_or_none(PartCategory.id == category_id)
+            if category is None:
+                return {"message": "Unkown category"}, 404
+            result.update(get_category_properties(category))
+
+        else:
+            for property in PartProperty.select().distinct():
+                result.add(property.name)
+
+        return {"properties": list(result)}, 200
