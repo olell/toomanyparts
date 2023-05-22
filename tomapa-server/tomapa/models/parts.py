@@ -27,17 +27,20 @@ class Unit(Model):
 
 class PartCategory(Model):
     name = peewee.CharField()
-    parent = peewee.ForeignKeyField("self", null=True)
+    parent = peewee.ForeignKeyField(
+        "self", null=True, on_delete="CASCADE", backref="children"
+    )
 
 
 class Part(Model):
     stock = peewee.IntegerField(default=0)
-    category = peewee.ForeignKeyField(PartCategory)
+    category = peewee.ForeignKeyField(PartCategory, backref="parts")
     description = peewee.TextField()
-    location = peewee.ForeignKeyField(StorageLocation)
+    location = peewee.ForeignKeyField(StorageLocation, backref="parts")
 
 
 class PartProperty(Model):
+    part = peewee.ForeignKeyField(Part, backref="properties")
     name = peewee.CharField()
     display_name = peewee.CharField()
 

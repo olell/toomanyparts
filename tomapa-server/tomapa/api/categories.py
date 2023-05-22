@@ -13,11 +13,24 @@ from tomapa.api import load_schema_or_abort
 from marshmallow import Schema, fields, post_load
 
 
+###############################################################
+#                         Schemata                            #
+###############################################################
+
+
 class CategoriesGetSchema(Schema):
+    """
+    Schema used for the get-request of the categories endpoint
+    """
+
     flat = fields.String(required=False, allow_none=True)
 
 
 class CategoryGetSchema(Schema):
+    """
+    Schema used to get a category model from an id field (integer)
+    """
+
     id = fields.Integer(required=True)
 
     @post_load
@@ -26,6 +39,12 @@ class CategoryGetSchema(Schema):
 
 
 class CategoryPostSchema(Schema):
+    """
+    Schema used to create a new category model from name and an optional parent.
+    Loading this schema creates a new model, but doesn't save it so that we can
+    do some checks after loading and before saving to db
+    """
+
     name = fields.String(required=True)
     parent = fields.Integer()
 
@@ -44,6 +63,11 @@ class CategoryPostSchema(Schema):
         return new
 
 
+###############################################################
+#                           Endpoints                         #
+###############################################################
+
+
 class CategoriesApi(Resource):
     def get(self):
         """
@@ -58,10 +82,17 @@ class CategoriesApi(Resource):
 
 class CategoryApi(Resource):
     def get(self):
+        """
+        Returns information about the requested category (id arg)
+        and about the parents recursively
+        """
         category = load_schema_or_abort(CategoryGetSchema, "args")
         return category.as_dict(), 200
 
     def post(self):
+        """
+        Creates a new category
+        """
         new_category = load_schema_or_abort(CategoryPostSchema)
 
         available_with_same_name = PartCategory.get_or_none(
@@ -74,7 +105,16 @@ class CategoryApi(Resource):
         return new_category.as_dict(), 201
 
     def delete(self):
+        """
+        Deletes a given category and all(!) their children recursively
+        """
         category = load_schema_or_abort(CategoryGetSchema)
-        category.delete_instance(recursive=True)
+
+        def delete_category(category):
+            for child in category.children:
+                delete_category(child)
+            category.delete_instance(recursive=True)
+
+        delete_category(category)
 
         return {}, 204
