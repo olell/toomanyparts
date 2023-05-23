@@ -227,14 +227,17 @@ class PropertyApi(Resource):
 
 
 def get_category_properties(category):
-    result = set()
-    for child in category.children:
-        result.update(get_category_properties(child))
-
-    for property in PartProperty.select():
-        if property.part.category == category:
-            result.add(property.name)
-
+    props = {}
+    total_parts = 0
+    for part in category.parts:
+        total_parts += 1
+        for property in part.properties:
+            current = props.get(property.name, 0)
+            props.update({property.name: current + 1})
+    result = []
+    for prop in props:
+        if props[prop] == total_parts:
+            result.append(prop)
     return result
 
 
