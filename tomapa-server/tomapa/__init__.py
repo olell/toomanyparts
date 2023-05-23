@@ -56,6 +56,8 @@ from tomapa.api.properties import PropertiesApi
 from tomapa.api.properties import PropertyTemplatesApi
 from tomapa.api.storage import StorageLocationApi
 from tomapa.api.storage import StorageLocationsApi
+from tomapa.api.unit import UnitApi
+from tomapa.api.unit import UnitsApi
 
 flask_api.add_resource(CategoriesApi, "/categories")
 flask_api.add_resource(CategoryApi, "/category")
@@ -66,5 +68,7 @@ flask_api.add_resource(PropertiesApi, "/properties")
 flask_api.add_resource(PropertyTemplatesApi, "/properties/templates")
 flask_api.add_resource(StorageLocationApi, "/storelocation")
 flask_api.add_resource(StorageLocationsApi, "/storelocations")
+flask_api.add_resource(UnitApi, "/unit")
+flask_api.add_resource(UnitsApi, "/units")
 
 app.logger.info("Hey there!")
