@@ -1,0 +1,31 @@
+.categories-accordion {
+    text-align: left !important;
+    border-bottom: 1px solid white;
+    border-left: 1px solid var(--bs-secondary);
+}
+.cat-acc-body {
+    text-align: left;
+    padding: 0 !important;
+    padding-left: 20px !important;
+}
+.category-sidebar {
+    margin-top: 1.25rem;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    min-height: calc(100vh - 30px) !important;
+    z-index: 100;
+    padding: 48px 0 0;
+    max-width: 18rem;
+    min-width: 18rem;
+    border-right: 1px solid var(--bs-secondary);
+}
+.content-container {
+    position: absolute;
+    left: 19rem;
+    top: 5rem;
+    max-width: calc(100vw - 20rem) !important;
+}
+.navbar {
+    padding-left: 0!important;
+}

@@ -1,12 +1,13 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
+import "./App.css";
 
 const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   return (
-    <Navbar bg="primary" className="navbar-dark" expand="lg">
-      <Container>
+    <Navbar bg="primary" className="navbar-dark fixed-top" expand="lg">
+      <Container className="ms-2">
         <Navbar.Brand
           onClick={() => {
             navigate("/");

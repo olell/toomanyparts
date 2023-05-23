@@ -31,10 +31,20 @@ class Unit(Model):
 
 
 class PartCategory(Model):
+    dict_backrefs = {"children": "parent"}
     name = peewee.CharField()
     parent = peewee.ForeignKeyField(
         "self", null=True, on_delete="CASCADE", backref="children"
     )
+
+    def rec_parts_count(self):
+        result = len(self.parts)
+        for child in self.children:
+            result += child.rec_parts_count()
+        return result
+
+    def dict_hook(self):
+        return {"parts_count": self.rec_parts_count()}
 
 
 class Part(Model):

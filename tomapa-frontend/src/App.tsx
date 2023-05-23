@@ -1,5 +1,3 @@
-import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import "./bootstrap.min.css";
 import { Container } from "react-bootstrap";
@@ -7,14 +5,22 @@ import { Route, Routes } from "react-router-dom";
 
 import Home from "./pages/home";
 import Navbar from "./navbar";
+import CategoriesSidebar from "./category_sidebar";
+
+import { Accordion, ListGroup } from "react-bootstrap";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import PartView from "./pages/part";
 
 function App() {
   return (
     <>
       <Navbar />
-      <Container className="mt-5">
+      <CategoriesSidebar />
+      <Container className="content-container">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/part/:id" element={<PartView />} />
         </Routes>
       </Container>
     </>
