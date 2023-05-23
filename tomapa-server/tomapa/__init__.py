@@ -4,13 +4,15 @@ Too Many Parts Server
 
 
 from flask import Flask
-import os
+from flask_restful import Api
 
 from logging.config import dictConfig
 
 # Creating flask app
 app = Flask(__name__)
 app.config.from_pyfile("config.py")
+
+flask_api = Api(app)
 
 # Configuring logger
 dictConfig(
@@ -43,3 +45,30 @@ with app.app_context():
     from tomapa.models.content import create_content
 
     create_content()
+
+# API Resources
+from tomapa.api.categories import CategoriesApi
+from tomapa.api.categories import CategoryApi
+from tomapa.api.parts import PartApi
+from tomapa.api.parts import PartsApi
+from tomapa.api.properties import PropertyApi
+from tomapa.api.properties import PropertiesApi
+from tomapa.api.properties import PropertyTemplatesApi
+from tomapa.api.storage import StorageLocationApi
+from tomapa.api.storage import StorageLocationsApi
+from tomapa.api.unit import UnitApi
+from tomapa.api.unit import UnitsApi
+
+flask_api.add_resource(CategoriesApi, "/categories")
+flask_api.add_resource(CategoryApi, "/category")
+flask_api.add_resource(PartApi, "/part")
+flask_api.add_resource(PartsApi, "/parts")
+flask_api.add_resource(PropertyApi, "/part/property")
+flask_api.add_resource(PropertiesApi, "/properties")
+flask_api.add_resource(PropertyTemplatesApi, "/properties/templates")
+flask_api.add_resource(StorageLocationApi, "/storelocation")
+flask_api.add_resource(StorageLocationsApi, "/storelocations")
+flask_api.add_resource(UnitApi, "/unit")
+flask_api.add_resource(UnitsApi, "/units")
+
+app.logger.info("Hey there!")

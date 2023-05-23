@@ -9,6 +9,8 @@ from peewee import Model as PeeweeModel
 from flask import current_app
 from logging import getLogger
 
+from tomapa.util.helper import is_safe_json
+
 from playhouse.shortcuts import ReconnectMixin
 
 
@@ -88,5 +90,42 @@ class Database(object):
 
 
 class Model(PeeweeModel):
+    dict_backrefs = {}
+    dict_omit = []
+
     class Meta:
         database = Database.get()
+
+    def dict_hook(self):
+        return None
+
+    def as_dict(self, omit=[], custom={}):
+        """Returns this model as dict
+        (if the model contains foreign keys, the referenced models are recursively added)
+        """
+        fields_to_omit = set(omit + self.dict_omit + list(custom.keys()))
+        result = {}
+        for field in self._meta.sorted_fields:
+            if not field.name in fields_to_omit:
+                value = self.__getattribute__(field.name)
+                if "as_dict" in dir(value):
+                    value = value.as_dict()
+                if is_safe_json({field.name: value}):
+                    result.update({field.name: value})
+
+        for backref in self.dict_backrefs:
+            own_name = self.dict_backrefs[backref]
+            fields = []
+            for field in self.__getattribute__(backref):
+                fields.append(field.as_dict(omit=[own_name]))
+            brjson = {backref: fields}
+            if is_safe_json(brjson):
+                result.update(brjson)
+
+        hook = self.dict_hook()
+        if hook is not None:
+            result.update(hook)
+
+        result.update(custom)
+
+        return result

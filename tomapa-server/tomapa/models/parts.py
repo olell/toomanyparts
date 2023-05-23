@@ -4,11 +4,17 @@ Too Many Parts Server
 Part (and related) models
 """
 from tomapa.models import Database, Model
+from tomapa.models.storage import StorageLocation
+
+from tomapa.util.helper import convert_value_and_type
+from tomapa.util.units import get_base
+from tomapa.util.units import get_human_readable
 
 import peewee
 
 
 class Unit(Model):
+    dict_omit = ["base", "smaller", "bigger", "smaller_mul", "bigger_div"]
     name = peewee.CharField()  # "Ω, F, Hz, etc."
 
     base = peewee.ForeignKeyField("self", null=True)
@@ -26,16 +32,22 @@ class Unit(Model):
 
 class PartCategory(Model):
     name = peewee.CharField()
-    parent = peewee.ForeignKeyField("self", null=True)
+    parent = peewee.ForeignKeyField(
+        "self", null=True, on_delete="CASCADE", backref="children"
+    )
 
 
 class Part(Model):
+    dict_backrefs = {"properties": "part"}
+
     stock = peewee.IntegerField(default=0)
-    category = peewee.ForeignKeyField(PartCategory)
+    category = peewee.ForeignKeyField(PartCategory, backref="parts")
     description = peewee.TextField()
+    location = peewee.ForeignKeyField(StorageLocation, backref="parts")
 
 
 class PartProperty(Model):
+    part = peewee.ForeignKeyField(Part, backref="properties")
     name = peewee.CharField()
     display_name = peewee.CharField()
 
@@ -44,20 +56,32 @@ class PartProperty(Model):
 
     unit = peewee.ForeignKeyField(Unit, null=True)
 
-    def value(self):
+    def get_value(self):
         """Returns the value converted to the correct type"""
-        try:
-            if self.value_type == "int":
-                return int(self.value)
-            if self.value_type == "float":
-                return float(self.value)
-            if self.value_type == "bool":
-                return self.value == "True"
-            if self.value_type == str:
-                return self.value
-        except:
-            pass
-        return None
+        return convert_value_and_type(self.value, self.value_type)
+
+    def dict_hook(self):
+        result = {}
+        value = self.get_value()
+        if value is None:
+            return result
+
+        result.update({"value": value})
+
+        if self.unit is None:
+            return result
+
+        base_value, base_unit = get_base(value, self.unit)
+        hr_value, hr_unit = get_human_readable(value, self.unit)
+        result.update(
+            {
+                "base_value": base_value,
+                "base_unit": base_unit.as_dict(),
+                "hr_value": hr_value,
+                "hr_unit": hr_unit.as_dict(),
+            }
+        )
+        return result
 
 
 class PropertyTemplate(Model):

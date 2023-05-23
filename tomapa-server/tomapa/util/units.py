@@ -62,3 +62,16 @@ def get_base(value, unit):
         if unit.base == unit:
             return value, unit
     return value, unit
+
+
+def get_unit_group(unit):
+    units = list()
+
+    while unit.smaller is not None:
+        unit = unit.smaller
+    units.append(unit)
+    while unit.bigger is not None:
+        unit = unit.bigger
+        units.append(unit)
+
+    return units

@@ -8,8 +8,6 @@ def create_property_template_model(name, display_name, value_type, unit):
         return template
 
     unit_model = Unit.get_or_none(Unit.name == unit)
-    if unit_model is not None:
-        unit_model = unit_model.base
 
     template = PropertyTemplate(
         name=name,
