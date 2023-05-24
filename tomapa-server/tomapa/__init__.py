@@ -61,6 +61,7 @@ from tomapa.api.storage import StorageLocationApi
 from tomapa.api.storage import StorageLocationsApi
 from tomapa.api.unit import UnitApi
 from tomapa.api.unit import UnitsApi
+from tomapa.api.docs import DocumentApi
 
 flask_api.add_resource(CategoriesApi, "/categories")
 flask_api.add_resource(CategoryApi, "/category")
@@ -73,5 +74,6 @@ flask_api.add_resource(StorageLocationApi, "/storelocation")
 flask_api.add_resource(StorageLocationsApi, "/storelocations")
 flask_api.add_resource(UnitApi, "/unit")
 flask_api.add_resource(UnitsApi, "/units")
+flask_api.add_resource(DocumentApi, "/doc")
 
 app.logger.info("Hey there!")
