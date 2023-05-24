@@ -40,18 +40,16 @@ function CategoryAccordion(categories: any, navigate: NavigateFunction) {
                       </Accordion.Body>
                     </Accordion.Item>
                   ) : (
-                    <ListGroup.Item className="border-0 list-group-item-action">
+                    <ListGroup.Item
+                      onClick={() => {
+                        navigate(`/category/${category.id}`);
+                      }}
+                      className="border-0 list-group-item-action"
+                    >
                       <Badge bg="secondary" className="me-2">
                         {category.parts_count}
                       </Badge>
-                      <a
-                        href="javascript:null"
-                        onClick={() => {
-                          navigate(`/category/${category.id}`);
-                        }}
-                      >
-                        {category.name}
-                      </a>
+                      {category.name}
                     </ListGroup.Item>
                   )}
                 </>
