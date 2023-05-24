@@ -22,6 +22,7 @@ default_config = {
     "DB_DATABASE": None,
     "DB_USER": None,
     "DB_PASS": None,
+    "UPLOAD_DIR": None,
 }
 
 _g = globals()

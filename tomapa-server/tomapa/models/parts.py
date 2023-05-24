@@ -48,7 +48,7 @@ class PartCategory(Model):
 
 
 class Part(Model):
-    dict_backrefs = {"properties": "part"}
+    dict_backrefs = {"properties": "part", "docs": "part"}
 
     stock = peewee.IntegerField(default=0)
     category = peewee.ForeignKeyField(PartCategory, backref="parts")

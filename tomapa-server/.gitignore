@@ -259,3 +259,4 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/python,flask
 
 db_dev.sqlite3
+uploads/
