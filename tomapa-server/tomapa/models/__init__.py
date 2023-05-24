@@ -6,6 +6,7 @@ from peewee import SqliteDatabase
 from peewee import MySQLDatabase
 from peewee import PostgresqlDatabase
 from peewee import Model as PeeweeModel
+from playhouse.shortcuts import model_to_dict
 from flask import current_app
 from logging import getLogger
 
@@ -121,7 +122,6 @@ class Model(PeeweeModel):
             brjson = {backref: fields}
             if is_safe_json(brjson):
                 result.update(brjson)
-
         hook = self.dict_hook()
         if hook is not None:
             result.update(hook)

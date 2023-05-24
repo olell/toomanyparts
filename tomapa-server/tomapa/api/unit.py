@@ -53,4 +53,4 @@ class UnitApi(Resource):
 
 class UnitsApi(Resource):
     def get(self):
-        return {"units": [unit.as_dict() for unit in Unit.select()]}
+        return {"units": [lolwas.as_dict() for lolwas in Unit.select()]}

@@ -5,11 +5,14 @@ Too Many Parts Server
 
 from flask import Flask
 from flask_restful import Api
+from flask_cors import CORS
 
 from logging.config import dictConfig
 
 # Creating flask app
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
 app.config.from_pyfile("config.py")
 
 flask_api = Api(app)

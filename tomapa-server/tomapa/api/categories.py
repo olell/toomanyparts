@@ -76,8 +76,14 @@ class CategoriesApi(Resource):
         """
         args = load_schema_or_abort(CategoriesGetSchema, "args")
         if args.get("flat") is not None:
-            return get_categories_flat(), 200
-        return get_categories_tree(), 200
+            return {"categories": get_categories_flat()}, 200
+
+        result = {"categories": []}
+
+        for category in PartCategory.select().where(PartCategory.parent == None):
+            result["categories"].append(category.as_dict())
+
+        return result, 200
 
 
 class CategoryApi(Resource):
