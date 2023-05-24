@@ -40,7 +40,7 @@ function CategoryAccordion(categories: any, navigate: NavigateFunction) {
                       </Accordion.Body>
                     </Accordion.Item>
                   ) : (
-                    <ListGroup.Item className="border-0 bg-light">
+                    <ListGroup.Item className="border-0 list-group-item-action">
                       <Badge bg="secondary" className="me-2">
                         {category.parts_count}
                       </Badge>
