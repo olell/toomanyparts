@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Col, Row, Table } from "react-bootstrap";
+import { Button, Col, Form, ListGroup, Row, Table } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
+import { Edit2, MinusCircle, PlusCircle, Trash2 } from "react-feather";
 
 function propertyValueRepresentation(property: any) {
   if (property.value_type == "str") return property.value;
@@ -25,6 +26,19 @@ const PartView = () => {
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<number>();
   const [heading, setHeading] = useState<string>("");
+
+  const updatePart = (attributes: any) => {
+    let data = {
+      id: part.id,
+      ...attributes,
+    };
+    axios.put("http://localhost:3279/part", data).then((response: any) => {
+      if (response.status === 200) {
+        setPart(response.data);
+      }
+    });
+  };
+
   useEffect(() => {
     axios
       .get("http://localhost:3279/part", { params: { id: id } })
@@ -105,29 +119,71 @@ const PartView = () => {
             )}
           </Row>
           <Row className="d-flex justify-content-around">
-            {part?.docs.map((doc: any) => (
-              <>
-                <div
-                  className="part-image-thumb-container mt-2"
-                  onClick={() => {
-                    setSelectedImage(doc.id);
-                  }}
-                >
-                  <img
-                    className="part-image-thumb"
-                    src={`http://localhost:3279/doc?id=${doc.id}`}
-                  ></img>
-                </div>
-              </>
-            ))}
+            {part?.docs.map((doc: any) =>
+              doc.type === "image" ? (
+                <>
+                  <div
+                    className="part-image-thumb-container mt-2"
+                    onClick={() => {
+                      setSelectedImage(doc.id);
+                    }}
+                  >
+                    <img
+                      className="part-image-thumb"
+                      src={`http://localhost:3279/doc?id=${doc.id}`}
+                    ></img>
+                  </div>
+                </>
+              ) : (
+                <></>
+              )
+            )}
           </Row>
         </Col>
         {/* Properties */}
         <Col>
+          <Button
+            variant="link"
+            size="sm"
+            className="text-primary float-end"
+            onClick={() => {}}
+          >
+            <Edit2 />
+          </Button>
+          <Button
+            variant="link"
+            size="sm"
+            className="text-danger float-end"
+            onClick={() => {}}
+          >
+            <Trash2 />
+          </Button>
           <Table>
             <tbody>
               <tr>
-                <td className="property-table-name fw-bold">Stock</td>
+                <td className="property-table-name fw-bold">
+                  Stock
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="ms-3 text-success"
+                    onClick={() => {
+                      updatePart({ stock: part.stock + 1 });
+                    }}
+                  >
+                    <PlusCircle />
+                  </Button>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-danger"
+                    onClick={() => {
+                      updatePart({ stock: part.stock - 1 });
+                    }}
+                  >
+                    <MinusCircle />
+                  </Button>
+                </td>
                 <td className="property-table-value">{part?.stock}</td>
               </tr>
               <tr className="mb-2">
@@ -156,6 +212,23 @@ const PartView = () => {
           </Table>
         </Col>
       </Row>
+      {part?.docs.length > 0 ? (
+        <Row className="mt-2">
+          <h3>Docs</h3>
+          <hr></hr>
+          <ListGroup>
+            {part?.docs.map((doc: any) =>
+              doc.type !== "image" ? (
+                <ListGroup.Item>{doc.type}</ListGroup.Item>
+              ) : (
+                <></>
+              )
+            )}
+          </ListGroup>
+        </Row>
+      ) : (
+        <></>
+      )}
     </>
   );
 };
