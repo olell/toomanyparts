@@ -219,7 +219,13 @@ const PartView = () => {
           <ListGroup>
             {part?.docs.map((doc: any) =>
               doc.type !== "image" ? (
-                <ListGroup.Item>{doc.type}</ListGroup.Item>
+                <ListGroup.Item
+                  onClick={() => {
+                    window.open(`http://localhost:3279/doc?id=${doc.id}`);
+                  }}
+                >
+                  {doc.type}
+                </ListGroup.Item>
               ) : (
                 <></>
               )
