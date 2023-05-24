@@ -29,3 +29,17 @@
 .navbar {
     padding-left: 0!important;
 }
+.part-image {
+    max-width: 100%;
+    border: 1px solid var(--bs-secondary);
+}
+
+.part-image-thumb-container {
+    border: 1px solid var(--bs-secondary);
+    max-width: fit-content !important;
+    width: 100%;
+}
+
+.part-image-thumb{
+    max-width: 5rem !important;
+}
