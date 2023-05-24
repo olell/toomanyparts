@@ -6,6 +6,7 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./pages/home";
 import Navbar from "./navbar";
 import CategoriesSidebar from "./category_sidebar";
+import Category from "./pages/category";
 
 import { Accordion, ListGroup } from "react-bootstrap";
 import axios from "axios";
@@ -21,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/part/:id" element={<PartView />} />
+          <Route path="/category/:id" element={<Category />} />
         </Routes>
       </Container>
     </>

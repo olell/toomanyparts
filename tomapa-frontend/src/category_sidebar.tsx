@@ -1,21 +1,17 @@
 import "./App.css";
 import "./bootstrap.min.css";
 import { Badge, Container, Row } from "react-bootstrap";
-import { Route, Routes } from "react-router-dom";
-
-import Home from "./pages/home";
-import Navbar from "./navbar";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 
 import { Accordion, ListGroup } from "react-bootstrap";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-function categoryAccordion(categories: any) {
+function CategoryAccordion(categories: any, navigate: NavigateFunction) {
   /*
   Recursively generates nested bootstrap accordions to display
   all available part categories.
   */
-  console.log(categories);
   return (
     <>
       <Accordion
@@ -37,7 +33,7 @@ function categoryAccordion(categories: any) {
                       </Accordion.Header>
                       <Accordion.Body className="cat-acc-body">
                         {category.children.length > 0 ? (
-                          <>{categoryAccordion(category.children)}</>
+                          <>{CategoryAccordion(category.children, navigate)}</>
                         ) : (
                           <>{category.name}</>
                         )}
@@ -48,7 +44,14 @@ function categoryAccordion(categories: any) {
                       <Badge bg="secondary" className="me-2">
                         {category.parts_count}
                       </Badge>
-                      <a href="#">{category.name} </a>
+                      <a
+                        href="javascript:null"
+                        onClick={() => {
+                          navigate(`/category/${category.id}`);
+                        }}
+                      >
+                        {category.name}
+                      </a>
                     </ListGroup.Item>
                   )}
                 </>
@@ -65,6 +68,8 @@ function categoryAccordion(categories: any) {
 
 const CategoriesSidebar = () => {
   const [categories, setCategories] = useState<[any]>();
+  const navigate = useNavigate();
+
   useEffect(() => {
     axios.get("http://localhost:3279/categories").then((result: any) => {
       if (result.status === 200) {
@@ -76,7 +81,9 @@ const CategoriesSidebar = () => {
 
   return (
     <>
-      <div className="category-sidebar">{categoryAccordion(categories)}</div>
+      <div className="category-sidebar">
+        {CategoryAccordion(categories, navigate)}
+      </div>
     </>
   );
 };

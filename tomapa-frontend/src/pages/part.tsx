@@ -1,11 +1,12 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const PartView = () => {
   const { id } = useParams();
   const [part, setPart] = useState<any>(null);
   const [categoryPath, setCategoryPath] = useState<any[]>();
+  const navigate = useNavigate();
   useEffect(() => {
     axios
       .get("http://localhost:3279/part", { params: { id: id } })
@@ -30,7 +31,14 @@ const PartView = () => {
       <hr></hr>
       {categoryPath?.map((el: any) => (
         <>
-          <a href="#">{el?.name}</a>
+          <a
+            href="javascript:null"
+            onClick={() => {
+              navigate(`/category/${el?.id}`);
+            }}
+          >
+            {el?.name}
+          </a>
           {el?.children?.length > 0 ? " / " : " "}
         </>
       ))}
