@@ -29,3 +29,14 @@ def get_categories_tree():
             parent_obj["children"].append(obj)
 
     return tree
+
+
+def is_part_in_child_category(part, category):
+    if part.category == category:
+        return True
+
+    for child in category.children:
+        if is_part_in_child_category(part, child):
+            return True
+
+    return False

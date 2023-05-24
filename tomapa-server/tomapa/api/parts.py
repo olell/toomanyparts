@@ -12,6 +12,8 @@ from tomapa.models.storage import StorageLocation
 
 from tomapa.api.properties import PartPropertyPostSchema
 
+from tomapa.util.categories import is_part_in_child_category
+
 
 ###############################################################
 #                         Schemata                            #
@@ -109,6 +111,53 @@ class PartPutSchema(Schema):
         return part
 
 
+class PartsGetFilterSchema(Schema):
+    """
+    Get parts filtered by different criteria. All filters
+    in a request are applied.
+    """
+
+    # The part is in the given category
+    category = fields.Integer()
+    # The part might also be in one of the categories children (default true)
+    category_children = fields.Bool()
+
+    @post_load
+    def filter_parts(self, data, **_):
+        # Category filter: Get category model
+        category_id = data.get("category", None)
+        category_children = data.get("category_children", True)
+
+        category = None
+        if category_id is not None:
+            category = PartCategory.get_or_none(PartCategory.id == category_id)
+            if category is None:
+                return None  # Category id in params invalid
+
+        # Check if no filter is applied
+        no_filter = False
+        if (
+            category is None
+        ):  # TODO: Add every implemented filter here! (or xyz is None or abc is None etc...)
+            no_filter = True
+
+        # Get list of parts to filter from
+        all_parts = Part.select()
+        filtered_parts = set()
+        for part in all_parts:
+            if category is not None:  # Category filter
+                if category_children:
+                    if is_part_in_child_category(part, category):
+                        filtered_parts.add(part)
+                else:
+                    if part.category == category:
+                        filtered_parts.add(part)
+
+            if no_filter:
+                filtered_parts.add(part)
+        return filtered_parts
+
+
 ###############################################################
 #                           Endpoints                         #
 ###############################################################
@@ -141,6 +190,6 @@ class PartApi(Resource):
 class PartsApi(Resource):
     def get(self):
         parts = []
-        for part in Part.select():
+        for part in load_schema_or_abort(PartsGetFilterSchema, "args"):
             parts.append(part.as_dict())
         return {"parts": parts}
