@@ -1,7 +1,22 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Col, Row } from "react-bootstrap";
+import { Col, Row, Table } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
+
+function propertyValueRepresentation(property: any) {
+  if (property.value_type == "str") return property.value;
+
+  if (property.value_type == "bool") return property.value ? "Yes" : "No";
+
+  if (property.hr_value !== undefined) {
+    return `${property.hr_value} ${property.hr_unit.name}`;
+  } else if (property.unit) {
+    return `${property.value} ${property.unit.name}`;
+  } else {
+    return `${property.value}`;
+  }
+  return "";
+}
 
 const PartView = () => {
   const { id } = useParams();
@@ -9,6 +24,7 @@ const PartView = () => {
   const [categoryPath, setCategoryPath] = useState<any[]>();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<number>();
+  const [heading, setHeading] = useState<string>("");
   useEffect(() => {
     axios
       .get("http://localhost:3279/part", { params: { id: id } })
@@ -35,12 +51,25 @@ const PartView = () => {
         }
       }
     }
+
+    setHeading(part?.description);
+    if (part?.properties.length > 0) {
+      for (let i = 0; i < part?.properties.length; i++) {
+        if (part?.properties[i].name == "mfr_no") {
+          setHeading(part?.properties[i].value);
+          break;
+        }
+      }
+    }
   }, [part]);
   return (
     <>
-      <h1>{part?.description}</h1>
+      <h1>{heading}</h1>
+      {heading !== part?.description ? <span>{part?.description}</span> : <></>}
+
       <hr></hr>
       <Row>
+        {/* Category Path */}
         <Col>
           {categoryPath?.map((el: any) => (
             <>
@@ -58,6 +87,7 @@ const PartView = () => {
         </Col>
       </Row>
       <Row className="mt-4">
+        {/* Image Preview */}
         <Col className="col-md-3">
           <Row>
             {selectedImage !== undefined ? (
@@ -91,6 +121,39 @@ const PartView = () => {
               </>
             ))}
           </Row>
+        </Col>
+        {/* Properties */}
+        <Col>
+          <Table>
+            <tbody>
+              <tr>
+                <td className="property-table-name fw-bold">Stock</td>
+                <td className="property-table-value">{part?.stock}</td>
+              </tr>
+              <tr className="mb-2">
+                <td className="property-table-name fw-bold">Location</td>
+                <td className="property-table-value">{part?.location.name}</td>
+              </tr>
+              {part?.properties
+                .sort((a: any, b: any) =>
+                  a.name > b.name ? 1 : b.name > a.name ? -1 : 0
+                )
+                .map((property: any) => (
+                  <tr>
+                    <td className="property-table-name fw-bold">
+                      {property.display_name}
+                    </td>
+                    <td className="property-table-value">
+                      {propertyValueRepresentation(property)}
+                    </td>
+                  </tr>
+                ))}
+              <tr>
+                <td className="property-table-name fw-bold">Description</td>
+                <td className="property-table-value">{part?.description}</td>
+              </tr>
+            </tbody>
+          </Table>
         </Col>
       </Row>
     </>

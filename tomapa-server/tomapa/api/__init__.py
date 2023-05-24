@@ -9,7 +9,7 @@ def load_schema_or_abort(schema, source="json"):
     if source == "args":
         source = request.args
     elif source == "json":
-        source = request.json()
+        source = request.json
     elif source == "form":
         source = request.form
     else:

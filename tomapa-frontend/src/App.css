@@ -8,6 +8,8 @@
     padding: 0 !important;
     padding-left: 20px !important;
 }
+@media screen and (orientation:portrait) { .category-sidebar{display:none;} .content-container{left: unset !important; width: 100vw !important;} }
+
 .category-sidebar {
     margin-top: 1rem;
     position: absolute;
@@ -42,4 +44,13 @@
 
 .part-image-thumb{
     max-width: 5rem !important;
+}
+
+.property-table-name {
+    width: auto;
+    white-space: nowrap;
+}
+
+.property-table-value {
+    width: 100%;
 }
