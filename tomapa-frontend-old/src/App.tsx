@@ -8,10 +8,8 @@ import Navbar from "./navbar";
 import CategoriesSidebar from "./category_sidebar";
 import Category from "./pages/category";
 
-import { Accordion, ListGroup } from "react-bootstrap";
-import axios from "axios";
-import { useEffect, useState } from "react";
 import PartView from "./pages/part";
+import CreatePart from "./pages/create_part";
 
 function App() {
   return (
@@ -23,6 +21,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/part/:id" element={<PartView />} />
           <Route path="/category/:id" element={<Category />} />
+          <Route path="/newpart" element={<CreatePart />} />
         </Routes>
       </Container>
     </>

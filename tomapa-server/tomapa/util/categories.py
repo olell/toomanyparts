@@ -7,6 +7,7 @@ def get_categories_flat():
             "name": o.name,
             "parent": o.parent.id if o.parent is not None else None,
             "id": o.id,
+            "children_count": len(o.children),
         }
         for o in PartCategory.select()
     ]

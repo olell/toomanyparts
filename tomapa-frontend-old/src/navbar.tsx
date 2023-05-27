@@ -26,6 +26,14 @@ const NavBar = () => {
             >
               Home
             </Nav.Link>
+            <Nav.Link
+              onClick={() => {
+                navigate("/newpart");
+              }}
+              active={location.pathname == "/newpart"}
+            >
+              New Part
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
