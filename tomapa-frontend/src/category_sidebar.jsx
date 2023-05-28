@@ -73,7 +73,6 @@ const CategoriesSidebar = () => {
     axios.get("http://localhost:3279/categories").then((result) => {
       if (result.status === 200) {
         setCategories(result.data.categories);
-        console.log(categories);
       }
     });
   };

@@ -10,12 +10,16 @@ const valueTypeInputElement = {
   float: "number",
 };
 
-const PropertyEdit = ({ property, onChange = (p) => {} }) => {
+const PropertyEdit = ({
+  property,
+  onChange = (p) => {},
+  onBlur = (e) => {},
+}) => {
   const [units, setUnits] = useState();
   const [propertyTemplates, setPropertyTemplates] = useState();
 
   const [name, setName] = useState(property.name);
-  const [displayName, setDisplayName] = useState(property.display_name);
+  const [displayName, setDisplayName] = useState(property.displayName);
   const [value, setValue] = useState(property.value);
   const [valueType, setValueType] = useState(property.value_type);
   const [unit, setUnit] = useState(property.unit);
@@ -23,6 +27,14 @@ const PropertyEdit = ({ property, onChange = (p) => {} }) => {
   const [isDeleted, setDeleted] = useState(!!property.isDeleted);
 
   const elId = useId();
+
+  useEffect(() => {
+    setValue(property.value);
+  }, [property.value]);
+
+  useEffect(() => {
+    setUnit(property.unit);
+  }, [property.unit]);
 
   useEffect(() => {
     axios.get("http://localhost:3279/units").then((result) => {
@@ -40,7 +52,7 @@ const PropertyEdit = ({ property, onChange = (p) => {} }) => {
   useEffect(() => {
     propertyTemplates?.forEach((template) => {
       if (template.name == name) {
-        setDisplayName(template.display_name);
+        setDisplayName(template.displayName);
         setUnit(template.unit?.id);
         setValueType(template.value_type);
       }
@@ -71,7 +83,7 @@ const PropertyEdit = ({ property, onChange = (p) => {} }) => {
   useEffect(() => {
     onChange({
       name: name,
-      display_name: displayName,
+      displayName: displayName,
       value: value,
       valueType: valueType,
       unit: unit,
@@ -90,6 +102,7 @@ const PropertyEdit = ({ property, onChange = (p) => {} }) => {
           onChange={(e) => {
             setName(e.target.value);
           }}
+          onBlur={onBlur}
         />
         <datalist id={`pni${elId}`}>
           {propertyTemplates?.map((t) => (
@@ -106,6 +119,7 @@ const PropertyEdit = ({ property, onChange = (p) => {} }) => {
           onChange={(e) => {
             setDisplayName(e.target.value);
           }}
+          onBlur={onBlur}
         />
       </Col>
       <Col>
@@ -114,6 +128,7 @@ const PropertyEdit = ({ property, onChange = (p) => {} }) => {
           onChange={(e) => {
             setValueType(e.target.value);
           }}
+          onBlur={onBlur}
         >
           <option value="int">Int</option>
           <option value="float">Float</option>
@@ -128,6 +143,7 @@ const PropertyEdit = ({ property, onChange = (p) => {} }) => {
           onChange={(e) => {
             setValue(e.target.value);
           }}
+          onBlur={onBlur}
         />
       </Col>
       <Col>
@@ -137,6 +153,7 @@ const PropertyEdit = ({ property, onChange = (p) => {} }) => {
           onChange={(e) => {
             setUnit(e.target.value);
           }}
+          onBlur={onBlur}
         >
           <option value="0">No Unit</option>
           {units?.map((unit) => (

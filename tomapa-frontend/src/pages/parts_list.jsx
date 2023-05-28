@@ -8,7 +8,6 @@ const PartsList = ({ filter }) => {
   const [parts, setParts] = useState();
   const navigate = useNavigate();
   useEffect(() => {
-    console.log("filter...", filter);
     axios
       .get("http://localhost:3279/parts", { params: filter })
       .then((response) => {

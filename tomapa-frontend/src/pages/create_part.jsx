@@ -6,7 +6,7 @@ import PropertyEdit from "../components/property_edit";
 import { useNavigate } from "react-router-dom";
 
 const propTypeDefaultValues = {
-  str: " ",
+  str: "",
   bool: "false",
   int: 1,
   float: "0.0",
@@ -25,13 +25,14 @@ const CreatePart = () => {
   const [properties, setProperties] = useState({});
 
   const [isSaving, setSaving] = useState(false);
+  const [loadedSource, setLoadedSource] = useState(false);
 
-  const commonPartProperties = ["mfr", "mfr_no", "src", "src_no", "package"];
+  const commonPartProperties = ["src", "src_no", "mfr", "mfr_no", "package"];
 
   const [resultObject, setResultObject] = useState({});
 
   const createPart = () => {
-    console.log(resultObject);
+    console.log("result", resultObject);
     axios
       .post("http://localhost:3279/part", resultObject, {
         headers: {
@@ -40,13 +41,42 @@ const CreatePart = () => {
       })
       .then((result) => {
         if (result.status === 200) {
-          console.log(result);
           navigate(`/part/${result.data.id}`);
         }
       })
       .catch((e) => {
-        console.log(e);
+        console.log("e", e);
       });
+  };
+
+  const loadSource = () => {
+    let src = properties.src.value;
+    let src_no = properties.src_no.value;
+
+    if (!!src && !!src_no && !loadedSource) {
+      setLoadedSource(true);
+      axios
+        .get(`http://localhost:3279/source?src=${src}&src_no=${src_no}`)
+        .then((result) => {
+          if (result.status === 200) {
+            setDescription(result.data.description);
+            console.log(result.data);
+            let newProps = {};
+            result.data.properties.forEach((p) => {
+              newProps[p.name] = {
+                name: p.name,
+                displayName: p.display_name,
+                value: p.value,
+                valueType: p.value_type,
+                unit: p.unit,
+              };
+            });
+            console.log("vs", properties, newProps);
+            setProperties({ ...properties, ...newProps });
+          }
+        })
+        .catch(() => {});
+    }
   };
 
   useEffect(() => {
@@ -84,11 +114,10 @@ const CreatePart = () => {
                 propertyTemplate = template;
               }
             });
-            console.log(propertyTemplate, "name" in propertyTemplate);
             if ("name" in propertyTemplate) {
               let n = {
                 name: propertyTemplate.name,
-                display_name: propertyTemplate.display_name,
+                displayName: propertyTemplate.display_name,
                 value: propTypeDefaultValues[propertyTemplate.value_type],
                 value_type: propertyTemplate.value_type,
                 unit: propertyTemplate.unit?.id,
@@ -105,8 +134,6 @@ const CreatePart = () => {
   }, [category]);
 
   useEffect(() => {
-    console.log("Properties changed", properties);
-
     resultObject["stock"] = stock;
     resultObject["category"] = category;
     resultObject["location"] = location;
@@ -114,13 +141,13 @@ const CreatePart = () => {
     resultObject["properties"] = Object.values(properties)
       .filter((p) => !p.isDeleted)
       .map((p) => ({
-        name: p.name,
-        display_name: p.display_name,
-        value: p.value,
-        value_type: p.valueType,
-        unit: p.unit > 0 ? p.unit : undefined,
+        name: !!p.name ? p.name : undefined,
+        display_name: !!p.displayName ? p.displayName : undefined,
+        value: !!p.value ? p.value.toString() : undefined,
+        value_type: !!p.valueType ? p.valueType.toString() : undefined,
+        unit: !!p.unit ? p.unit : undefined,
       }));
-  }, [stock, properties]);
+  }, [stock, properties, category, location, description]);
 
   return (
     <>
@@ -200,7 +227,7 @@ const CreatePart = () => {
                     name: `property_${Object.keys(properties).length + 1}`,
                     value: null,
                     unit: null,
-                    display_name: "",
+                    displayName: "",
                   },
                 });
               }}
@@ -217,16 +244,18 @@ const CreatePart = () => {
               <Col>Unit</Col>
               <Col className="col-md-1">Delete</Col>
             </Row>
-            {Object.keys(properties).map((property, idx) => (
+            {Object.values(properties).map((property) => (
               <Row className="d-flex">
                 <PropertyEdit
-                  property={properties[property]}
+                  property={property}
                   onChange={(p) => {
-                    console.log("changed", idx, p, properties);
                     setProperties({
                       ...properties,
-                      [property]: p,
+                      [property.name]: p,
                     });
+                  }}
+                  onBlur={(e) => {
+                    loadSource();
                   }}
                 />
               </Row>
