@@ -1,6 +1,6 @@
 import { Col, Form, Button } from "react-bootstrap";
 import { MinusCircle } from "react-feather";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useId } from "react";
 import axios from "axios";
 
 const valueTypeInputElement = {
@@ -21,6 +21,8 @@ const PropertyEdit = ({ property, onChange = (p) => {} }) => {
   const [unit, setUnit] = useState(property.unit);
 
   const [isDeleted, setDeleted] = useState(!!property.isDeleted);
+
+  const elId = useId();
 
   useEffect(() => {
     axios.get("http://localhost:3279/units").then((result) => {
@@ -84,15 +86,17 @@ const PropertyEdit = ({ property, onChange = (p) => {} }) => {
         <Form.Control
           type="text"
           value={name}
-          id="propertyNameInput"
+          list={`pni${elId}`}
           onChange={(e) => {
             setName(e.target.value);
           }}
         />
-        <datalist id="propertyNameInput">
-          <option value="1">One</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
+        <datalist id={`pni${elId}`}>
+          {propertyTemplates?.map((t) => (
+            <>
+              <option value={t.name} />
+            </>
+          ))}
         </datalist>
       </Col>
       <Col>
