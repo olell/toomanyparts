@@ -4,7 +4,6 @@ import { NavigateFunction, useNavigate } from "react-router-dom";
 import { Accordion, ListGroup } from "react-bootstrap";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { RefreshCw } from "react-feather";
 
 function CategoryAccordion(categories, navigate) {
   /*
@@ -85,16 +84,6 @@ const CategoriesSidebar = ({ partsChanged }) => {
         <Row>
           <Col className="ms-2 mt-1">
             <h4>Categories</h4>
-          </Col>
-          <Col>
-            <Button
-              variant="link"
-              size="sm"
-              className="text-info float-end"
-              onClick={loadCategories}
-            >
-              <RefreshCw />
-            </Button>
           </Col>
         </Row>
         {CategoryAccordion(categories, navigate)}
