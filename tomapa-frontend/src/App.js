@@ -10,12 +10,15 @@ import Category from "./pages/category";
 
 import PartView from "./pages/part";
 import CreatePart from "./pages/create_part";
+import SearchPage from "./pages/search";
 
 function App() {
   const [partsChanged, setPartsChanged] = useState(0);
   var storedTheme = localStorage.getItem("bstheme");
   if (!!!storedTheme) storedTheme = "solar";
   const [theme, setTheme] = useState(storedTheme);
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     localStorage.setItem("bstheme", theme);
@@ -27,7 +30,11 @@ function App() {
 
   return (
     <>
-      <Navbar theme={theme} setTheme={setTheme} />
+      <Navbar
+        theme={theme}
+        setTheme={setTheme}
+        setSearchQuery={setSearchQuery}
+      />
       <CategoriesSidebar partsChanged={partsChanged} />
       <Container className="content-container">
         <Routes>
@@ -41,6 +48,7 @@ function App() {
             path="/newpart"
             element={<CreatePart setPartsChanged={setPartsChanged} />}
           />
+          <Route path="/search" element={<SearchPage query={searchQuery} />} />
         </Routes>
       </Container>
     </>

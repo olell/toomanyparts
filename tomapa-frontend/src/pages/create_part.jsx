@@ -24,6 +24,9 @@ const CreatePart = ({ setPartsChanged }) => {
   const [category, setCategory] = useState(1);
   const [properties, setProperties] = useState({});
 
+  const [imageUrl, setImageUrl] = useState(null);
+  const [datasheetUrl, setDatasheetUrl] = useState(null);
+
   const [isSaving, setSaving] = useState(false);
   const [loadedSource, setLoadedSource] = useState(false);
 
@@ -50,9 +53,9 @@ const CreatePart = ({ setPartsChanged }) => {
       });
   };
 
-  const loadSource = () => {
-    let src = properties.src.value;
-    let src_no = properties.src_no.value;
+  useEffect(() => {
+    let src = properties.src?.value;
+    let src_no = properties.src_no?.value;
 
     if (!!src && !!src_no && !loadedSource) {
       setLoadedSource(true);
@@ -61,8 +64,8 @@ const CreatePart = ({ setPartsChanged }) => {
         .then((result) => {
           if (result.status === 200) {
             setDescription(result.data.description);
-            resultObject["datasheet_url"] = result.data.datasheet;
-            resultObject["image_url"] = result.data.imageUrl;
+            setDatasheetUrl(result.data.datasheet);
+            setImageUrl(result.data.imageUrl);
             console.log(result.data);
             let newProps = {};
             result.data.properties.forEach((p) => {
@@ -80,7 +83,7 @@ const CreatePart = ({ setPartsChanged }) => {
         })
         .catch(() => {});
     }
-  };
+  }, [resultObject]);
 
   useEffect(() => {
     axios.get("http://localhost:3279/categories?flat").then((result) => {
@@ -108,7 +111,7 @@ const CreatePart = ({ setPartsChanged }) => {
           let newProperties = {};
           let suggestedProperties = [
             ...commonPartProperties,
-            ...result.data.properties,
+            ...Object.keys(result.data.properties),
           ];
           suggestedProperties.forEach((property) => {
             let propertyTemplate = {};
@@ -137,11 +140,18 @@ const CreatePart = ({ setPartsChanged }) => {
   }, [category]);
 
   useEffect(() => {
-    resultObject["stock"] = stock;
-    resultObject["category"] = category;
-    resultObject["location"] = location;
-    resultObject["description"] = description;
-    resultObject["properties"] = Object.values(properties)
+    let result = {};
+    result["stock"] = stock;
+    result["category"] = category;
+    result["location"] = location;
+    if (!!imageUrl) {
+      result["image_url"] = imageUrl;
+    }
+    if (!!datasheetUrl) {
+      result["datasheet_url"] = datasheetUrl;
+    }
+    result["description"] = description;
+    result["properties"] = Object.values(properties)
       .filter((p) => !p.isDeleted && p.value !== null && p.value !== undefined)
       .map((p) => ({
         name: !!p.name ? p.name : undefined,
@@ -150,6 +160,8 @@ const CreatePart = ({ setPartsChanged }) => {
         value_type: !!p.valueType ? p.valueType.toString() : undefined,
         unit: !!p.unit ? p.unit : undefined,
       }));
+    setResultObject(result);
+    console.log("current result object", result);
   }, [stock, properties, category, location, description]);
 
   return (
@@ -257,9 +269,7 @@ const CreatePart = ({ setPartsChanged }) => {
                       [property.name]: p,
                     });
                   }}
-                  onBlur={(e) => {
-                    loadSource();
-                  }}
+                  onBlur={(e) => {}}
                 />
               </Row>
             ))}

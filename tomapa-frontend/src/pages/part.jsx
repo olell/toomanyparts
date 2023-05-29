@@ -182,7 +182,7 @@ const PartView = ({ setPartsChanged }) => {
   return (
     <>
       <h1>
-        {heading} (#{part?.id})
+        {heading} <span className="fw-bold">(#{part?.id})</span>
       </h1>
       {heading !== part?.description ? <span>{part?.description}</span> : <></>}
       <Button

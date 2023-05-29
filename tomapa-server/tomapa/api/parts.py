@@ -9,6 +9,7 @@ from tomapa.api import load_schema_or_abort
 
 from tomapa.models.parts import Part
 from tomapa.models.parts import PartCategory
+from tomapa.models.parts import PartProperty
 from tomapa.models.storage import StorageLocation
 from tomapa.models.docs import PartDocument
 
@@ -75,7 +76,12 @@ class PartPostSchema(Schema):
 
         image_url = data.get("image_url", None)
         if image_url is not None:
-            req = requests.get(image_url)
+            req = requests.get(
+                image_url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0"
+                },
+            )
             if req.status_code == 200:
                 filename = str(uuid.uuid4()) + "." + image_url.rsplit(".", 1)[1].lower()
                 with open(
@@ -88,7 +94,12 @@ class PartPostSchema(Schema):
 
         datasheet_url = data.get("datasheet_url", None)
         if datasheet_url is not None:
-            req = requests.get(datasheet_url)
+            req = requests.get(
+                datasheet_url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0"
+                },
+            )
             if req.status_code == 200:
                 filename = (
                     str(uuid.uuid4()) + "." + datasheet_url.rsplit(".", 1)[1].lower()
@@ -156,6 +167,28 @@ class PartPutSchema(Schema):
         return part
 
 
+class PropertyFilterSchema(Schema):
+    name = fields.String()
+    allowed_values = fields.List(fields.Raw())
+
+
+def is_value_in_list(value, checklist):
+    try:
+        value = float(value)
+    except:
+        pass
+
+    for check in checklist:
+        try:
+            check = float(check)
+        except:
+            pass
+        if value == check:
+            return True
+
+    return False
+
+
 class PartsGetFilterSchema(Schema):
     """
     Get parts filtered by different criteria. All filters
@@ -166,6 +199,8 @@ class PartsGetFilterSchema(Schema):
     category = fields.Integer()
     # The part might also be in one of the categories children (default true)
     category_children = fields.Bool()
+
+    property_filter = fields.List(fields.Nested(PropertyFilterSchema))
 
     @post_load
     def filter_parts(self, data, **_):
@@ -179,26 +214,40 @@ class PartsGetFilterSchema(Schema):
             if category is None:
                 return None  # Category id in params invalid
 
-        # Check if no filter is applied
-        no_filter = False
-        if (
-            category is None
-        ):  # TODO: Add every implemented filter here! (or xyz is None or abc is None etc...)
-            no_filter = True
-
         # Get list of parts to filter from
         all_parts = Part.select()
         filtered_parts = set()
         for part in all_parts:
+            use_part = True
+
             if category is not None:  # Category filter
                 if category_children:
-                    if is_part_in_child_category(part, category):
-                        filtered_parts.add(part)
+                    if not is_part_in_child_category(part, category):
+                        use_part = False
                 else:
-                    if part.category == category:
-                        filtered_parts.add(part)
+                    if part.category != category:
+                        use_part = False
 
-            if no_filter:
+            for property_filter in data.get("property_filter", []):
+                filter_name = property_filter.get("name")
+                allowed_values = property_filter.get("allowed_values", [])
+                if filter_name is not None and len(allowed_values) > 0:
+                    name_contained = False
+                    for property in part.properties:
+                        if property.name == filter_name:
+                            name_contained = True
+                        if property.name == filter_name and not is_value_in_list(
+                            property.value, allowed_values
+                        ):
+                            print(property.value, allowed_values)
+                            use_part = False
+                    if not name_contained:
+                        use_part = False
+                print(
+                    property_filter.get("name"), property_filter.get("allowed_values")
+                )
+
+            if use_part:
                 filtered_parts.add(part)
         return filtered_parts
 
@@ -240,8 +289,10 @@ class PartApi(Resource):
 
 
 class PartsApi(Resource):
-    def get(self):
+    def post(self):
         parts = []
-        for part in load_schema_or_abort(PartsGetFilterSchema, "args"):
-            parts.append(part.as_dict())
+        for part in load_schema_or_abort(PartsGetFilterSchema, "json"):
+            parts.append(
+                part.as_dict(omit=["category"], custom={"category": part.category_id})
+            )
         return {"parts": parts}

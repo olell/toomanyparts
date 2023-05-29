@@ -26,6 +26,14 @@ const PropertyEdit = ({
 
   const [isDeleted, setDeleted] = useState(!!property.isDeleted);
 
+  const [obj, setObj] = useState({
+    name: name,
+    displayName: displayName,
+    value: value,
+    valueType: valueType,
+    unit: unit,
+  });
+
   const elId = useId();
 
   useEffect(() => {
@@ -35,10 +43,6 @@ const PropertyEdit = ({
   useEffect(() => {
     setUnit(property.unit);
   }, [property.unit]);
-
-  useEffect(() => {
-    setDisplayName(property.displayName);
-  }, [property.displayName]);
 
   useEffect(() => {
     axios.get("http://localhost:3279/units").then((result) => {
@@ -56,7 +60,7 @@ const PropertyEdit = ({
   useEffect(() => {
     propertyTemplates?.forEach((template) => {
       if (template.name == name) {
-        setDisplayName(template.displayName);
+        setDisplayName(template.display_name);
         setUnit(template.unit?.id);
         setValueType(template.value_type);
       }
@@ -85,7 +89,8 @@ const PropertyEdit = ({
   }, [value]);
 
   useEffect(() => {
-    onChange({
+    setObj({
+      ...obj,
       name: name,
       displayName: displayName,
       value: value,
@@ -93,6 +98,11 @@ const PropertyEdit = ({
       unit: unit,
     });
   }, [name, displayName, value, valueType, unit]);
+
+  const _onBlur = (e) => {
+    onChange(obj);
+    onBlur(e);
+  };
 
   return isDeleted ? (
     <></>
@@ -106,7 +116,7 @@ const PropertyEdit = ({
           onChange={(e) => {
             setName(e.target.value);
           }}
-          onBlur={onBlur}
+          onBlur={_onBlur}
         />
         <datalist id={`pni${elId}`}>
           {propertyTemplates?.map((t) => (
@@ -123,7 +133,7 @@ const PropertyEdit = ({
           onChange={(e) => {
             setDisplayName(e.target.value);
           }}
-          onBlur={onBlur}
+          onBlur={_onBlur}
         />
       </Col>
       <Col>
@@ -132,7 +142,7 @@ const PropertyEdit = ({
           onChange={(e) => {
             setValueType(e.target.value);
           }}
-          onBlur={onBlur}
+          onBlur={_onBlur}
         >
           <option value="int">Int</option>
           <option value="float">Float</option>
@@ -147,7 +157,7 @@ const PropertyEdit = ({
           onChange={(e) => {
             setValue(e.target.value);
           }}
-          onBlur={onBlur}
+          onBlur={_onBlur}
         />
       </Col>
       <Col>
@@ -157,7 +167,7 @@ const PropertyEdit = ({
           onChange={(e) => {
             setUnit(e.target.value);
           }}
-          onBlur={onBlur}
+          onBlur={_onBlur}
         >
           <option value="0">No Unit</option>
           {units?.map((unit) => (

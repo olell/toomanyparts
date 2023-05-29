@@ -1,8 +1,15 @@
-import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import {
+  Container,
+  Nav,
+  Navbar,
+  NavDropdown,
+  FormGroup,
+  FormControl,
+} from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./App.css";
 
-const NavBar = ({ theme, setTheme }) => {
+const NavBar = ({ theme, setTheme, setSearchQuery }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,6 +57,16 @@ const NavBar = ({ theme, setTheme }) => {
               </NavDropdown.Item>
             </NavDropdown>
           </Nav>
+          <FormGroup>
+            <FormControl
+              type="text"
+              placeholder="Search Parts"
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                navigate("/search");
+              }}
+            ></FormControl>
+          </FormGroup>
         </Navbar.Collapse>
       </Container>
     </Navbar>

@@ -5,24 +5,12 @@ import { useNavigate } from "react-router";
 import { generateDisplayName } from "../util/stringen";
 import { ChevronUp, ChevronDown } from "react-feather";
 
-const PartsList = ({ filter }) => {
-  const [parts, setParts] = useState();
+const PartsList = ({ parts }) => {
   const navigate = useNavigate();
   const [orderBy, setOrderBy] = useState("id");
   const [orderDirection, setOrderDirection] = useState(1);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:3279/parts", { params: filter })
-      .then((response) => {
-        if (response.status === 200) {
-          setParts(response.data.parts);
-        }
-      });
-  }, [filter]);
-
   const getProperty = (part, propertyName) => {
-    console.log(part, propertyName);
     let result = {};
     part.properties.forEach((element) => {
       if (element.name === propertyName) {

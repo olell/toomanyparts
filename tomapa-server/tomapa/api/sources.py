@@ -2,6 +2,7 @@ from flask_restful import Resource
 
 from tomapa.api import load_schema_or_abort
 from tomapa.util.sources.lcsc import get_lcsc_data
+from tomapa.util.sources.mouser import get_mouser_data
 
 from marshmallow import Schema, fields
 
@@ -33,5 +34,8 @@ class SourceApi(Resource):
             part_data = get_lcsc_data(data["src_no"])
             if part_data is not None:
                 return part_data, 200
-
+        if data["src"].lower() == "mouser":
+            part_data = get_mouser_data(data["src_no"])
+            if part_data is not None:
+                return part_data, 200
         return {"message": "Not found!"}, 404

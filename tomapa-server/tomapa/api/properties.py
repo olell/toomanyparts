@@ -14,6 +14,7 @@ from tomapa.models.parts import Unit
 from tomapa.models.parts import Part
 from tomapa.models.parts import PropertyTemplate
 
+from tomapa.util.units import get_human_readable
 from tomapa.util.units import get_base
 from tomapa.util.helper import convert_value_and_type
 
@@ -232,12 +233,40 @@ def get_category_properties(category):
     for part in category.parts:
         total_parts += 1
         for property in part.properties:
-            current = props.get(property.name, 0)
-            props.update({property.name: current + 1})
-    result = []
+            current = props.get(
+                property.name,
+                {
+                    "display_name": property.display_name,
+                    "name": property.name,
+                    "amount": 0,
+                    "values": [],
+                },
+            )
+            new_values = current["values"]
+
+            base_value, base_unit = (
+                property.get_value(),
+                property.unit,
+            )
+
+            if base_unit is not None:
+                base_value, base_unit = get_base(base_value, base_unit)
+
+            result_value = base_value, base_unit, base_value, base_unit
+
+            if base_unit is not None:
+                value, unit = get_human_readable(base_value, base_unit)
+                result_value = base_value, base_unit.id, value, unit.id
+
+            if result_value not in new_values:
+                new_values.append(result_value)
+
+            current.update({"amount": current["amount"] + 1, "values": new_values})
+            props.update({property.name: current})
+    result = {}
     for prop in props:
-        if props[prop] == total_parts:
-            result.append(prop)
+        if props[prop]["amount"] == total_parts or False:
+            result.update({prop: props[prop]})
     return result
 
 
@@ -247,7 +276,8 @@ class PropertiesApi(Resource):
         filters = load_schema_or_abort(PropertiesGetSchema, "args")
 
         category_id = filters.get("category", None)
-        result = set()
+
+        result = {}
         if category_id is not None:
             category = PartCategory.get_or_none(PartCategory.id == category_id)
             if category is None:
@@ -255,10 +285,10 @@ class PropertiesApi(Resource):
             result.update(get_category_properties(category))
 
         else:
-            for property in PartProperty.select().distinct():
-                result.add(property.name)
+            for property in PartProperty.select():
+                result.append(property.name)
 
-        return {"properties": list(result)}, 200
+        return {"properties": result}, 200
 
 
 class PropertyTemplatesApi(Resource):

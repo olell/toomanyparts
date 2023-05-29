@@ -23,6 +23,8 @@ default_config = {
     "DB_USER": None,
     "DB_PASS": None,
     "UPLOAD_DIR": None,
+    # Api keys
+    "MOUSER_KEY": None,
 }
 
 _g = globals()

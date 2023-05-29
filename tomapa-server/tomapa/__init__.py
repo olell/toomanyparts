@@ -64,6 +64,7 @@ from tomapa.api.unit import UnitsApi
 from tomapa.api.docs import DocumentApi
 from tomapa.api.docs import DocsApi
 from tomapa.api.sources import SourceApi
+from tomapa.api.search import SearchApi
 
 flask_api.add_resource(CategoriesApi, "/categories")
 flask_api.add_resource(CategoryApi, "/category")
@@ -79,5 +80,6 @@ flask_api.add_resource(UnitsApi, "/units")
 flask_api.add_resource(DocumentApi, "/doc")
 flask_api.add_resource(DocsApi, "/docs")
 flask_api.add_resource(SourceApi, "/source")
+flask_api.add_resource(SearchApi, "/search")
 
 app.logger.info("Hey there!")
