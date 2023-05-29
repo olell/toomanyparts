@@ -37,6 +37,10 @@ const PropertyEdit = ({
   }, [property.unit]);
 
   useEffect(() => {
+    setDisplayName(property.displayName);
+  }, [property.displayName]);
+
+  useEffect(() => {
     axios.get("http://localhost:3279/units").then((result) => {
       if (result.status === 200) {
         setUnits(result.data.units);

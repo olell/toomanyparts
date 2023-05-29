@@ -12,7 +12,7 @@ const propTypeDefaultValues = {
   float: "0.0",
 };
 
-const CreatePart = () => {
+const CreatePart = ({ setPartsChanged }) => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState();
   const [locations, setLocations] = useState();
@@ -42,6 +42,7 @@ const CreatePart = () => {
       .then((result) => {
         if (result.status === 200) {
           navigate(`/part/${result.data.id}`);
+          setPartsChanged(Date.now());
         }
       })
       .catch((e) => {
@@ -60,6 +61,8 @@ const CreatePart = () => {
         .then((result) => {
           if (result.status === 200) {
             setDescription(result.data.description);
+            resultObject["datasheet_url"] = result.data.datasheet;
+            resultObject["image_url"] = result.data.imageUrl;
             console.log(result.data);
             let newProps = {};
             result.data.properties.forEach((p) => {
@@ -139,11 +142,11 @@ const CreatePart = () => {
     resultObject["location"] = location;
     resultObject["description"] = description;
     resultObject["properties"] = Object.values(properties)
-      .filter((p) => !p.isDeleted)
+      .filter((p) => !p.isDeleted && p.value !== null && p.value !== undefined)
       .map((p) => ({
         name: !!p.name ? p.name : undefined,
         display_name: !!p.displayName ? p.displayName : undefined,
-        value: !!p.value ? p.value.toString() : undefined,
+        value: p.value.toString(),
         value_type: !!p.valueType ? p.valueType.toString() : undefined,
         unit: !!p.unit ? p.unit : undefined,
       }));

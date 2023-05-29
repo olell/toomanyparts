@@ -35,9 +35,23 @@ class DocumentPostSchema(Schema):
     part = fields.Integer(required=True)
 
 
+class DocumentsGetSchema(Schema):
+    type = fields.String(required=True)
+
+
 ###############################################################
 #                           Endpoints                         #
 ###############################################################
+
+
+class DocsApi(Resource):
+    def get(self):
+        requested_type = load_schema_or_abort(DocumentsGetSchema, "args")["type"]
+        result = [
+            doc.as_dict(custom={"part": doc.part_id}, omit=["path", "part"])
+            for doc in PartDocument.select().where(PartDocument.type == requested_type)
+        ]
+        return result, 200
 
 
 class DocumentApi(Resource):

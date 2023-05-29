@@ -9,10 +9,12 @@ import {
   MinusCircle,
   PlusCircle,
   Save,
+  Tag,
   Trash2,
 } from "react-feather";
 
 import { generateDisplayName } from "../util/stringen";
+import QuestionModal from "../components/question_modal";
 
 function propertyValueRepresentation(property) {
   if (property.value_type == "str") return property.value;
@@ -36,7 +38,7 @@ function valueTypeInputElement(property) {
   if (property.value_type == "float") return "number";
 }
 
-const PartView = () => {
+const PartView = ({ setPartsChanged }) => {
   const { id } = useParams();
   const [part, setPart] = useState(null);
   const [categoryPath, setCategoryPath] = useState();
@@ -94,6 +96,20 @@ const PartView = () => {
         }
       });
   };
+  const deletePart = () => {
+    let data = {
+      id: id,
+    };
+    axios
+      .delete("http://localhost:3279/part", { data: data })
+      .then((response) => {
+        if (response.status === 204) {
+          navigate("/");
+          setPartsChanged(Date.now());
+        }
+      });
+  };
+
   const uploadFile = (file, doctype) => {
     var data = new FormData();
     data.append("file", file);
@@ -161,9 +177,13 @@ const PartView = () => {
     if (part) setHeading(generateDisplayName(part));
   }, [part]);
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   return (
     <>
-      <h1>{heading}</h1>
+      <h1>
+        {heading} (#{part?.id})
+      </h1>
       {heading !== part?.description ? <span>{part?.description}</span> : <></>}
       <Button
         variant="link"
@@ -179,10 +199,22 @@ const PartView = () => {
         variant="link"
         size="sm"
         className="text-danger float-end"
-        onClick={() => {}}
+        onClick={() => {
+          setShowDeleteModal(true);
+        }}
       >
         <Trash2 />
       </Button>
+      <QuestionModal
+        show={showDeleteModal}
+        setShow={setShowDeleteModal}
+        question="Are you sure?"
+        text="This will delete the selected part forever!"
+        action={() => {
+          deletePart();
+        }}
+        variant="danger"
+      />
       <hr></hr>
       <Row>
         {/* Category Path */}
@@ -473,6 +505,7 @@ const PartView = () => {
                   }}
                 >
                   {doc.type == "datasheet" ? <FileText /> : <></>}
+                  {doc.type == "label" ? <Tag /> : <></>}
                   <span className="ms-3 text-capitalize">{doc.type}</span>
                 </ListGroup.Item>
               ) : (

@@ -30,3 +30,4 @@ def create_units():
     create_unit_models("mW", "W", "kW", base="mW")
     create_unit_models("°C", base="°C")
     create_unit_models("mAh", "Ah", base="mAh")
+    create_unit_models("uA", "mA", "A", base="nA")

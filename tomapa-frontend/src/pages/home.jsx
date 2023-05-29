@@ -3,6 +3,7 @@ const Home = () => {
     <>
       <h1>Welcome!</h1>
       <hr></hr>
+      <span>I have no clue what I could/should show on this page...</span>
     </>
   );
 };

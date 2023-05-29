@@ -1,5 +1,3 @@
-import "./App.css";
-import "./bootstrap.min.css";
 import { Badge, Button, Col, Container, Row } from "react-bootstrap";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 
@@ -65,7 +63,7 @@ function CategoryAccordion(categories, navigate) {
   );
 }
 
-const CategoriesSidebar = () => {
+const CategoriesSidebar = ({ partsChanged }) => {
   const [categories, setCategories] = useState();
   const navigate = useNavigate();
 
@@ -79,7 +77,7 @@ const CategoriesSidebar = () => {
 
   useEffect(() => {
     loadCategories();
-  }, []);
+  }, [partsChanged]);
 
   return (
     <>

@@ -6,7 +6,11 @@ lcsc_param_to_property = {
     "param_10837_n": ["p", "Power"],
     "param_11155_n": ["v_max", "Max. Voltage"],
     "param_10836_s": ["tolerance", "Tolerance"],
-}
+    "param_10953_n": ["v", "Voltage"],
+    "param_10951_n": ["c", "Capacitance"],
+    "param_10954": ["tcc", "Temperature Coefficient"],
+    "param_13455_n": ["amp_max", "Max. Current"],
+}  # Todo: this list is not even close to being complete
 
 
 def get_lcsc_data(pc):
@@ -75,6 +79,8 @@ def get_lcsc_data(pc):
         value, unit = parse_unit_token(param["paramValue"])
         string_value = param.get("paramValueEn", None)
         known_param = lcsc_param_to_property.get(param_code, None)
+
+        print(param_code, value, unit, string_value, param["paramNameEn"])
 
         if value is not None and unit is not None:
             if known_param is not None:

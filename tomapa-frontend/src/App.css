@@ -5,7 +5,7 @@
 }
 .accordion-button:not(.collapsed) {
   background-color: var(--bs-bg-dark) !important;
-  color: var(--bs-white) !important;
+  color: var(--bs-text) !important;
 }
 .cat-acc-body {
   text-align: left;
@@ -59,4 +59,7 @@
 
 .property-table-value {
   width: 100%;
+}
+.sortbutton {
+  padding: 0 !important;
 }

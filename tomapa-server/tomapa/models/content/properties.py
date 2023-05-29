@@ -37,6 +37,7 @@ def create_property_templates():
         ("p", "Power", float, "W"),
         ("f", "Frequency", float, "Hz"),
         ("capacity", "Capacity", float, "Ah"),
+        ("amp", "Current", float, "A"),
         # Other value attributes
         ("v_in", "Input Voltage", float, "V"),
         ("v_out", "Output Voltage", float, "V"),
@@ -44,6 +45,8 @@ def create_property_templates():
         ("v_max", "Max. Voltage", float, "V"),
         ("p_min", "Min. Power", float, "W"),
         ("p_max", "Max. Power", float, "W"),
+        ("amp_min", "Min. Current", float, "A"),
+        ("amp_max", "Max. Current", float, "A"),
         ("t_min", "Min. Temperature", float, "°C"),
         ("t_max", "Max. Temperature", float, "°C"),
         ("f_min", "Min. Frequency", float, "Hz"),

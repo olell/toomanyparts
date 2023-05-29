@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import PartsList from "./parts_list";
+import PartsList from "../components/parts_list";
 
 const Category = () => {
   const { id } = useParams();
@@ -23,8 +23,6 @@ const Category = () => {
         });
       });
   }, [id]);
-
-  useEffect(() => {}, [category]);
 
   return (
     <>

@@ -1,12 +1,19 @@
-import { Container, Nav, Navbar } from "react-bootstrap";
+import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./App.css";
 
-const NavBar = () => {
+const NavBar = ({ theme, setTheme }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
   return (
-    <Navbar bg="primary" className="navbar-dark fixed-top" expand="lg">
+    <Navbar
+      bg="primary"
+      className={`${
+        theme == "dark" ? "navbar-dark bg-dark" : "navbar-dark"
+      } fixed-top`}
+      expand="lg"
+    >
       <Container className="ms-2">
         <Navbar.Brand
           onClick={() => {
@@ -34,6 +41,14 @@ const NavBar = () => {
             >
               New Part
             </Nav.Link>
+            <NavDropdown title="Theme" className="float-end">
+              <NavDropdown.Item onClick={() => setTheme("dark")}>
+                Dark
+              </NavDropdown.Item>
+              <NavDropdown.Item onClick={() => setTheme("light")}>
+                Light
+              </NavDropdown.Item>
+            </NavDropdown>
           </Nav>
         </Navbar.Collapse>
       </Container>

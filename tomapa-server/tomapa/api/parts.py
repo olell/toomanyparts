@@ -1,4 +1,5 @@
 from flask_restful import Resource
+from flask import current_app
 
 from marshmallow import Schema
 from marshmallow import fields
@@ -9,10 +10,16 @@ from tomapa.api import load_schema_or_abort
 from tomapa.models.parts import Part
 from tomapa.models.parts import PartCategory
 from tomapa.models.storage import StorageLocation
+from tomapa.models.docs import PartDocument
 
 from tomapa.api.properties import PartPropertyPostSchema
 
 from tomapa.util.categories import is_part_in_child_category
+from tomapa.util.label import generate_label
+
+import requests
+import os
+import uuid
 
 
 ###############################################################
@@ -41,6 +48,9 @@ class PartPostSchema(Schema):
     description = fields.String(required=True)
     location = fields.Integer(required=True)
 
+    image_url = fields.String()
+    datasheet_url = fields.String()
+
     properties = fields.List(fields.Nested(PartPropertyPostSchema))
 
     @post_load
@@ -62,6 +72,41 @@ class PartPostSchema(Schema):
         for property in data.get("properties", []):
             property.part = new_part
             property.save(1)
+
+        image_url = data.get("image_url", None)
+        if image_url is not None:
+            req = requests.get(image_url)
+            if req.status_code == 200:
+                filename = str(uuid.uuid4()) + "." + image_url.rsplit(".", 1)[1].lower()
+                with open(
+                    os.path.join(current_app.config["UPLOAD_DIR"], filename), "wb+"
+                ) as target:
+                    target.write(req.content)
+
+                doc = PartDocument(part=new_part, type="image", path=filename)
+                doc.save()
+
+        datasheet_url = data.get("datasheet_url", None)
+        if datasheet_url is not None:
+            req = requests.get(datasheet_url)
+            if req.status_code == 200:
+                filename = (
+                    str(uuid.uuid4()) + "." + datasheet_url.rsplit(".", 1)[1].lower()
+                )
+                with open(
+                    os.path.join(current_app.config["UPLOAD_DIR"], filename), "wb+"
+                ) as target:
+                    target.write(req.content)
+
+                doc = PartDocument(part=new_part, type="datasheet", path=filename)
+                doc.save()
+
+        # Generating label
+        label_fn = str(uuid.uuid4()) + ".pdf"
+        label_path = os.path.join(current_app.config["UPLOAD_DIR"], label_fn)
+        generate_label(new_part, label_path)
+        doc = PartDocument(part=new_part, type="label", path=label_fn)
+        doc.save()
 
         return new_part
 
@@ -181,6 +226,13 @@ class PartApi(Resource):
 
         for property in part.properties:
             property.delete_instance()
+
+        for doc in part.docs:
+            try:
+                os.path.join(current_app.config["UPLOAD_DIR"], doc.path)
+            except:
+                pass
+            doc.delete_instance()
 
         part.delete_instance()
 
