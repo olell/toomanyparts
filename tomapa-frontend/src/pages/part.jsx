@@ -40,7 +40,7 @@ function valueTypeInputElement(property) {
   if (property.value_type == "float") return "number";
 }
 
-const PartView = ({ setPartsChanged }) => {
+const PartView = ({ setPartsChanged, showControls = true }) => {
   const { id } = useParams();
   const [part, setPart] = useState(null);
   const [categoryPath, setCategoryPath] = useState();
@@ -201,94 +201,108 @@ const PartView = ({ setPartsChanged }) => {
         {heading} <span className="fw-bold">(#{part?.id})</span>
       </h1>
       {heading !== part?.description ? <span>{part?.description}</span> : <></>}
-      <Button
-        variant="link"
-        size="sm"
-        className="text-info float-end"
-        onClick={() => {
-          setEditMode(!editMode);
-        }}
-      >
-        {editMode ? <CheckCircle /> : <Edit2 />}
-      </Button>
-      {sourceUrl ? (
-        <a
-          href={sourceUrl}
-          target="_blank"
-          className="pt-1 text-info float-end"
-        >
-          <Truck />
-        </a>
+      {showControls ? (
+        <>
+          <Button
+            variant="link"
+            size="sm"
+            className="text-info float-end"
+            onClick={() => {
+              setEditMode(!editMode);
+            }}
+          >
+            {editMode ? <CheckCircle /> : <Edit2 />}
+          </Button>
+          {sourceUrl ? (
+            <a
+              href={sourceUrl}
+              target="_blank"
+              className="pt-1 text-info float-end"
+            >
+              <Truck />
+            </a>
+          ) : (
+            <></>
+          )}
+
+          <Button
+            variant="link"
+            size="sm"
+            className="text-danger float-end"
+            onClick={() => {
+              setShowDeleteModal(true);
+            }}
+          >
+            <Trash2 />
+          </Button>
+          <QuestionModal
+            show={showDeleteModal}
+            setShow={setShowDeleteModal}
+            question="Are you sure?"
+            text="This will delete the selected part forever!"
+            action={() => {
+              deletePart();
+            }}
+            variant="danger"
+          />
+        </>
       ) : (
         <></>
       )}
 
-      <Button
-        variant="link"
-        size="sm"
-        className="text-danger float-end"
-        onClick={() => {
-          setShowDeleteModal(true);
-        }}
-      >
-        <Trash2 />
-      </Button>
-      <QuestionModal
-        show={showDeleteModal}
-        setShow={setShowDeleteModal}
-        question="Are you sure?"
-        text="This will delete the selected part forever!"
-        action={() => {
-          deletePart();
-        }}
-        variant="danger"
-      />
       <hr></hr>
-      <Row>
-        {/* Category Path */}
-        {editMode ? (
-          <>
-            <Form.Select
-              onChange={(event) => {
-                updatePart({ category: event.target.value });
-              }}
-            >
-              {categories?.map((category) =>
-                category.children_count == 0 ? (
-                  /*Show only categories at end of the tree*/ <>
-                    <option
-                      value={category.id}
-                      selected={category?.id == part?.category.id}
-                    >
-                      {category.name}
-                    </option>
-                  </>
-                ) : (
-                  <></>
-                )
-              )}
-            </Form.Select>
-          </>
-        ) : (
-          <>
-            <Col>
-              {categoryPath?.map((el) => (
-                <>
-                  <Button
-                    variant="link"
-                    onClick={() => {
-                      navigate(`/category/${el?.id}`);
-                    }}
-                  >
-                    {el?.name}
-                  </Button>
-                  {el?.children?.length > 0 ? " / " : " "}
-                </>
-              ))}
-            </Col>
-          </>
-        )}
-      </Row>
+      {showControls ? (
+        <>
+          <Row>
+            {/* Category Path */}
+            {editMode ? (
+              <>
+                <Form.Select
+                  onChange={(event) => {
+                    updatePart({ category: event.target.value });
+                  }}
+                >
+                  {categories?.map((category) =>
+                    category.children_count == 0 ? (
+                      /*Show only categories at end of the tree*/ <>
+                        <option
+                          value={category.id}
+                          selected={category?.id == part?.category.id}
+                        >
+                          {category.name}
+                        </option>
+                      </>
+                    ) : (
+                      <></>
+                    )
+                  )}
+                </Form.Select>
+              </>
+            ) : (
+              <>
+                <Col>
+                  {categoryPath?.map((el) => (
+                    <>
+                      <Button
+                        variant="link"
+                        onClick={() => {
+                          navigate(`/category/${el?.id}`);
+                        }}
+                      >
+                        {el?.name}
+                      </Button>
+                      {el?.children?.length > 0 ? " / " : " "}
+                    </>
+                  ))}
+                </Col>
+              </>
+            )}
+          </Row>
+        </>
+      ) : (
+        <></>
+      )}
+
       <Row className="mt-4">
         {/* Image Preview */}
         <Col className="col-md-3">
@@ -354,26 +368,32 @@ const PartView = ({ setPartsChanged }) => {
                     <></>
                   ) : (
                     <>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="ms-3 text-success"
-                        onClick={() => {
-                          updatePart({ stock: part.stock + 1 });
-                        }}
-                      >
-                        <PlusCircle />
-                      </Button>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="text-danger"
-                        onClick={() => {
-                          updatePart({ stock: part.stock - 1 });
-                        }}
-                      >
-                        <MinusCircle />
-                      </Button>
+                      {showControls ? (
+                        <>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="ms-3 text-success"
+                            onClick={() => {
+                              updatePart({ stock: part.stock + 1 });
+                            }}
+                          >
+                            <PlusCircle />
+                          </Button>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-danger"
+                            onClick={() => {
+                              updatePart({ stock: part.stock - 1 });
+                            }}
+                          >
+                            <MinusCircle />
+                          </Button>
+                        </>
+                      ) : (
+                        <></>
+                      )}
                     </>
                   )}
                 </td>
