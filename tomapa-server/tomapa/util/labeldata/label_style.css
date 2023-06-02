@@ -1,0 +1,26 @@
+@page {
+    width: 47mm;
+    height: 25mm;
+    padding: 0mm;
+}
+.container {
+    display: inline-block;
+    font-family: Verdana;
+    font-weight: bold;
+    font-size: 7px;
+}
+img {
+    margin: 0.5mm;
+    height: 14mm;
+    vertical-align: middle;
+    image-rendering: pixelated;
+}
+.label {
+    vertical-align: middle;
+    display: inline-block;
+    max-width: 30mm;
+}
+.description {
+    word-wrap: break-word;
+    max-width: 47mm;
+}

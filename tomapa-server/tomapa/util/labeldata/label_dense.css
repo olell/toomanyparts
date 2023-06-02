@@ -1,0 +1,36 @@
+@page {
+    width: 25mm;
+    height: 47mm;
+    padding: 0mm;
+}
+.container {
+    margin-top: 2.5mm;
+    font-family: Verdana;
+    font-weight: bold;
+    font-size: 7px;
+    text-align: center;
+    max-height: 42mm;
+    min-height: 42mm;
+    overflow: hidden;
+    border-top: 0.5px solid black;
+    border-bottom: 0.5px solid black;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    max-width: 24.5mm;
+}
+img {
+    margin: 0.5mm;
+    height: 14mm;
+    vertical-align: middle;
+    image-rendering: pixelated;
+}
+.label {
+    vertical-align: middle;
+    display: inline-block;
+    max-width: 25mm;
+}
+.description {
+    margin-top: 2mm;
+    word-wrap: break-word;
+    max-width: 25mm;
+}

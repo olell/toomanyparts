@@ -1,0 +1,43 @@
+<div class="container">
+<img src="{{label_tools.qr_code(qr_text)}}"/>
+<div class='label'>
+    <span style="font-size: 12px">#{{ id }}</span> <br/>
+    {% if mfr %}
+    <span>{{ mfr }}</span>
+    {% endif %}
+    {% if mfr_no %}
+    <span>{{ mfr_no }}</span>
+    {% endif %}<br/>
+    {% if package %}
+    <span>{{ package }}</span>
+    {% endif %}<br/>
+    
+    {% if c %}
+    <span>C. {{ c }}</span>
+    {% endif %}
+    {% if r %}
+    <span>R. {{ r }}</span>
+    {% endif %}
+    {% if l %}
+    <span>L. {{ l }}</span>
+    {% endif %}
+    {% if v %}
+    <span>V. {{ v }}</span>
+    {% endif %}
+    {% if p %}
+    <span>P. {{ p }}</span>
+    {% endif %}
+    {% if f %}
+    <span>F. {{ f }}</span>
+    {% endif %}
+    {% if capacity %}
+    <span>Cap. {{ capacity }}</span>
+    {% endif %}
+    {% if amp %}
+    <span>I. {{ amp }}</span>
+    {% endif %}
+
+
+</div>
+<div class="description">{{ description }}</div>
+</div>
