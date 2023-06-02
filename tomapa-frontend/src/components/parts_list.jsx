@@ -3,6 +3,8 @@ import { Table, Button } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import { ChevronUp, ChevronDown } from "react-feather";
 
+import { getImageUrl } from "../util/part";
+
 const PartsList = ({ parts, onClick = (part) => {} }) => {
   const navigate = useNavigate();
   const [orderBy, setOrderBy] = useState("id");
@@ -23,6 +25,7 @@ const PartsList = ({ parts, onClick = (part) => {} }) => {
       <Table striped hover style={{ cursor: "pointer" }}>
         <thead>
           <tr>
+            <th></th>
             <th>
               <span className="d-flex">
                 #
@@ -79,6 +82,13 @@ const PartsList = ({ parts, onClick = (part) => {} }) => {
                   onClick(part);
                 }}
               >
+                <td>
+                  <img
+                    className="img-thumb"
+                    loading="lazy"
+                    src={getImageUrl(part)}
+                  ></img>
+                </td>
                 <td>{part.id}</td>
                 <td>{getProperty(part, "mfr").value}</td>
                 <td>{getProperty(part, "mfr_no").value}</td>
