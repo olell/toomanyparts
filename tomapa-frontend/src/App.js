@@ -11,6 +11,7 @@ import Category from "./pages/category";
 import PartView from "./pages/part";
 import CreatePart from "./pages/create_part";
 import SearchPage from "./pages/search";
+import BOMPage from "./pages/bom_list";
 
 function App() {
   const [partsChanged, setPartsChanged] = useState(0);
@@ -47,6 +48,7 @@ function App() {
             element={<CreatePart setPartsChanged={setPartsChanged} />}
           />
           <Route path="/search" element={<SearchPage query={searchQuery} />} />
+          <Route path="/bom" element={<BOMPage />} />
         </Routes>
       </Container>
     </>
