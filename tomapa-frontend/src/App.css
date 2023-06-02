@@ -65,3 +65,8 @@
 .sortbutton {
   padding: 0 !important;
 }
+
+.img-thumb {
+  max-width: 4rem;
+  min-width: 4rem;
+}

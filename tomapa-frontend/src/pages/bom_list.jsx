@@ -2,10 +2,13 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { getApiEndpoint } from "../util/api";
 import { Form, ListGroup } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const BOMPage = () => {
   const [boms, setBoms] = useState([]);
   const [bomFilter, setBomFilter] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get(getApiEndpoint("/boms")).then((result) => {
@@ -36,7 +39,12 @@ const BOMPage = () => {
           )
           .map((bom) => (
             <>
-              <ListGroup.Item action>
+              <ListGroup.Item
+                action
+                onClick={(e) => {
+                  navigate(`/bomview/${bom.id}`);
+                }}
+              >
                 {bom.name} ({bom.parts} Parts)
               </ListGroup.Item>
             </>

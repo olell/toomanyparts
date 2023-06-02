@@ -40,8 +40,11 @@ function valueTypeInputElement(property) {
   if (property.value_type == "float") return "number";
 }
 
-const PartView = ({ setPartsChanged, showControls = true }) => {
+const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
   const { id } = useParams();
+  if (partId === null) {
+    partId = id;
+  }
   const [part, setPart] = useState(null);
   const [categoryPath, setCategoryPath] = useState();
   const navigate = useNavigate();
@@ -145,7 +148,7 @@ const PartView = ({ setPartsChanged, showControls = true }) => {
 
   const loadPartData = () => {
     axios
-      .get(getApiEndpoint("/part"), { params: { id: id } })
+      .get(getApiEndpoint("/part"), { params: { id: partId } })
       .then((response) => {
         if (response.status === 200) {
           setPart(response.data);
@@ -155,7 +158,7 @@ const PartView = ({ setPartsChanged, showControls = true }) => {
 
   useEffect(() => {
     loadPartData();
-  }, [id]);
+  }, [partId]);
 
   useEffect(() => {
     if (part) {
@@ -197,12 +200,16 @@ const PartView = ({ setPartsChanged, showControls = true }) => {
 
   return (
     <>
-      <h1>
-        {heading} <span className="fw-bold">(#{part?.id})</span>
-      </h1>
-      {heading !== part?.description ? <span>{part?.description}</span> : <></>}
       {showControls ? (
         <>
+          <h1>
+            {heading} <span className="fw-bold">(#{part?.id})</span>
+          </h1>
+          {heading !== part?.description ? (
+            <span>{part?.description}</span>
+          ) : (
+            <></>
+          )}
           <Button
             variant="link"
             size="sm"
@@ -245,12 +252,12 @@ const PartView = ({ setPartsChanged, showControls = true }) => {
             }}
             variant="danger"
           />
+          <hr></hr>
         </>
       ) : (
         <></>
       )}
 
-      <hr></hr>
       {showControls ? (
         <>
           <Row>
