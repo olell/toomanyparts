@@ -15,6 +15,7 @@ from tomapa.models.parts import Part
 from tomapa.models.bom import BOM
 from tomapa.models.bom import BOMPart
 from tomapa.models.bom import BOMPartDesignator
+from tomapa.util.kicad_rpt import parse_footprint_report
 
 
 ###############################################################
@@ -93,6 +94,23 @@ class BOMApi(Resource):
             reader = csv.DictReader(io.TextIOWrapper(buf))
             bom_data = [row for row in reader]
 
+        # Loading kicad footprint report file
+        footprint_positions = {}
+        if "rpt" in request.files:
+            rpt_file = request.files["rpt"]
+            rpt_filename = rpt_file.filename
+
+            if rpt_filename != "":
+                if (
+                    "." in rpt_filename
+                    and rpt_filename.rsplit(".", 1)[1].lower() == "rpt"
+                ):
+                    with io.BytesIO() as buf:
+                        rpt_file.save(buf)
+                        buf.seek(0)
+                        rpt_text = buf.read().decode()
+                        footprint_positions = parse_footprint_report(rpt_text)
+
         # Reading Image file
         img_path = None
         if "image_file" in request.files:
@@ -162,8 +180,13 @@ class BOMApi(Resource):
 
             # Creating BOMPartDesignators
             for designator in designators:
+                pos_data = footprint_positions.get(designator, None)
+                x = y = None
+                if pos_data is not None:
+                    x = pos_data.get("x", None)
+                    y = pos_data.get("y", None)
                 bom_part_designator = BOMPartDesignator(
-                    bom_part=bom_part, name=designator
+                    bom_part=bom_part, name=designator, location_x=x, location_y=y
                 )
                 bom_part_designator.save()
 
