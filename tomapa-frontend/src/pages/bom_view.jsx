@@ -13,6 +13,7 @@ const BOMView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [bom, setBom] = useState();
+  const [bomStock, setBomStock] = useState();
 
   const [modalPart, setModalPart] = useState();
   const [modalPartCount, setModalPartCount] = useState(0);
@@ -30,6 +31,7 @@ const BOMView = () => {
       }
     });
   };
+
   const loadBom = () => {
     axios.get(getApiEndpoint("/bom"), { params: { id: id } }).then((result) => {
       if (result.status === 200) {
@@ -54,32 +56,51 @@ const BOMView = () => {
     loadBom();
   }, [id]);
 
+  useEffect(() => {
+    let minStock = null;
+    bom?.parts.forEach((bompart) => {
+      let count = bompart.designators.length;
+      let stock = bompart.part.stock;
+      let bomPartStock = Math.floor(stock / count);
+      if (minStock === null || bomPartStock < minStock) {
+        minStock = bomPartStock;
+      }
+    });
+    setBomStock(minStock);
+  }, [bom]);
+
   return (
     <>
-      <div className="d-flex">
-        <h1>{bom?.name}</h1>
+      <h1>{bom?.name}</h1>
 
-        <Button
-          variant="link"
-          size="sm"
-          className="text-danger ms-3"
-          onClick={() => {
-            setShowDeleteModal(true);
-          }}
-        >
-          <Trash2 />
-        </Button>
-        <QuestionModal
-          show={showDeleteModal}
-          setShow={setShowDeleteModal}
-          question="Are you sure?"
-          text="This will delete the selected BOM forever!"
-          action={() => {
-            deleteBOM();
-          }}
-          variant="danger"
-        />
-      </div>
+      {bomStock > 0 ? (
+        <span>Enough parts in stock to build this BOM {bomStock} times!</span>
+      ) : (
+        <span className="text-danger">
+          Not enough parts in stock to build this BOM!
+        </span>
+      )}
+
+      <Button
+        variant="link"
+        size="sm"
+        className="text-danger ms-3 float-end"
+        onClick={() => {
+          setShowDeleteModal(true);
+        }}
+      >
+        <Trash2 />
+      </Button>
+      <QuestionModal
+        show={showDeleteModal}
+        setShow={setShowDeleteModal}
+        question="Are you sure?"
+        text="This will delete the selected BOM forever!"
+        action={() => {
+          deleteBOM();
+        }}
+        variant="danger"
+      />
       <hr></hr>
       <Table striped hover>
         <thead>
@@ -87,6 +108,7 @@ const BOMView = () => {
             <th>IMG</th>
             <th>Designators</th>
             <th>Count</th>
+            <th>Part Stock</th>
             <th>Part Location</th>
             <th>Part ID</th>
             <th>Part Name</th>
@@ -109,6 +131,7 @@ const BOMView = () => {
               </td>
               <td>{bomPart.designators.map((d) => d.name).join(", ")}</td>
               <td>{bomPart.designators.length}</td>
+              <td>{bomPart.part.stock}</td>
               <td>{bomPart.part.location.name}</td>
               <td>#{bomPart.part.id}</td>
               <td>{generateDisplayName(bomPart.part)}</td>
@@ -116,7 +139,6 @@ const BOMView = () => {
           ))}
         </tbody>
       </Table>
-
       {!!modalPart ? (
         <>
           <Modal
