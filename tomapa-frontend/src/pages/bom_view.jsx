@@ -4,7 +4,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getApiEndpoint } from "../util/api";
 import { Table, Modal, Button } from "react-bootstrap";
 import { generateDisplayName, getImageUrl } from "../util/part";
+import { Trash2 } from "react-feather";
+
 import PartView from "./part";
+import QuestionModal from "../components/question_modal";
 
 const BOMView = () => {
   const { id } = useParams();
@@ -14,8 +17,8 @@ const BOMView = () => {
   const [modalPart, setModalPart] = useState();
   const [modalPartCount, setModalPartCount] = useState(0);
   const [showPartModal, setShowPartModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // TODO
   const reducePartStock = (part, amount) => {
     let data = {
       id: part.id,
@@ -36,14 +39,48 @@ const BOMView = () => {
     });
   };
 
+  const deleteBOM = () => {
+    let data = {
+      id: id,
+    };
+    axios.delete(getApiEndpoint("/bom"), { data: data }).then((response) => {
+      if (response.status === 204) {
+        navigate("/");
+      }
+    });
+  };
+
   useEffect(() => {
     loadBom();
   }, [id]);
 
   return (
     <>
-      <h1>{bom?.name}</h1>
-      <hr />
+      <div className="d-flex">
+        <h1>{bom?.name}</h1>
+
+        <Button
+          variant="link"
+          size="sm"
+          className="text-danger ms-3"
+          onClick={() => {
+            setShowDeleteModal(true);
+          }}
+        >
+          <Trash2 />
+        </Button>
+        <QuestionModal
+          show={showDeleteModal}
+          setShow={setShowDeleteModal}
+          question="Are you sure?"
+          text="This will delete the selected BOM forever!"
+          action={() => {
+            deleteBOM();
+          }}
+          variant="danger"
+        />
+      </div>
+      <hr></hr>
       <Table striped hover>
         <thead>
           <tr>
