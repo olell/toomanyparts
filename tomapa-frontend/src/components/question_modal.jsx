@@ -9,6 +9,7 @@ const QuestionModal = ({ show, setShow, question, text, variant, action }) => {
         onHide={() => setShow(false)}
         backdrop="static"
         keyboard={false}
+        centered
       >
         <Modal.Header closeButton>
           <Modal.Title>{question}</Modal.Title>
