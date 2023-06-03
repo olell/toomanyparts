@@ -1,27 +1,84 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { getApiEndpoint } from "../util/api";
-import { Form, ListGroup } from "react-bootstrap";
+import { Form, ListGroup, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 const BOMPage = () => {
   const [boms, setBoms] = useState([]);
   const [bomFilter, setBomFilter] = useState("");
 
+  const [bomFile, setBomFile] = useState();
+  const [bomName, setBomName] = useState("");
+  const [bomDescription, setBomDescription] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
+    loadBOMs();
+  }, []);
+
+  const loadBOMs = () => {
     axios.get(getApiEndpoint("/boms")).then((result) => {
       if (result.status === 200) {
         setBoms(result.data.boms);
       }
     });
-  }, []);
+  };
+
+  const postBOM = (file, name, description) => {
+    var data = new FormData();
+    data.append("file", file);
+    data.append("name", name);
+    if (!!description) {
+      data.append("description", description);
+    }
+    axios
+      .post(getApiEndpoint("/bom"), data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((response) => {
+        loadBOMs();
+      });
+  };
 
   return (
     <>
-      <h1>Your BOMs</h1>
+      <h1>BOM Tool</h1>
       <hr />
+      <h4>Upload a BOM</h4>
+      <>
+        <Form.Group>
+          <Form.Label>Name</Form.Label>
+          <Form.Control
+            type="text"
+            value={bomName}
+            onChange={(e) => setBomName(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group controlId="formFile">
+          <Form.Label>BOM CSV File</Form.Label>
+          <Form.Control
+            type="file"
+            onChange={(e) => {
+              if (e.target.files.length == 1) {
+                setBomFile(e.target.files[0]);
+              }
+            }}
+          />
+        </Form.Group>
+        <Button
+          variant="success"
+          className="mt-1"
+          onClick={() => {
+            postBOM(bomFile, bomName, bomDescription);
+          }}
+        >
+          Create BOM
+        </Button>
+      </>
+      <hr />
+      <h4>Your BOMs</h4>
       <Form.Group>
         <Form.Label>Filter BOMs by Name:</Form.Label>
         <Form.Control
