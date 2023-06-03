@@ -10,6 +10,8 @@ const BOMPage = () => {
 
   const [bomFile, setBomFile] = useState();
   const [pcbImage, setPcbImage] = useState();
+  const [rptFile, setRPTFile] = useState();
+
   const [bomName, setBomName] = useState("");
   const [bomDescription, setBomDescription] = useState("");
 
@@ -27,7 +29,7 @@ const BOMPage = () => {
     });
   };
 
-  const postBOM = (file, imagefile, name, description) => {
+  const postBOM = (file, imagefile, rptfile, name, description) => {
     var data = new FormData();
     data.append("file", file);
     if (!!imagefile) {
@@ -36,6 +38,9 @@ const BOMPage = () => {
     data.append("name", name);
     if (!!description) {
       data.append("description", description);
+    }
+    if (!!rptfile) {
+      data.append("rpt", rptfile);
     }
     axios
       .post(getApiEndpoint("/bom"), data, {
@@ -82,11 +87,22 @@ const BOMPage = () => {
             }}
           />
         </Form.Group>
+        <Form.Group controlId="formRotFile">
+          <Form.Label>Footprint Report (Optional)</Form.Label>
+          <Form.Control
+            type="file"
+            onChange={(e) => {
+              if (e.target.files.length == 1) {
+                setRPTFile(e.target.files[0]);
+              }
+            }}
+          />
+        </Form.Group>
         <Button
           variant="success"
           className="mt-1"
           onClick={() => {
-            postBOM(bomFile, pcbImage, bomName, bomDescription);
+            postBOM(bomFile, pcbImage, rptFile, bomName, bomDescription);
           }}
         >
           Create BOM

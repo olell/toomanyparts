@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getApiEndpoint } from "../util/api";
-import { Table, Modal, Button } from "react-bootstrap";
+import { Table, Modal, Button, Container, Row, Col } from "react-bootstrap";
 import { generateDisplayName, getImageUrl } from "../util/part";
 import { Trash2 } from "react-feather";
 
@@ -19,6 +19,11 @@ const BOMView = () => {
   const [modalPartCount, setModalPartCount] = useState(0);
   const [showPartModal, setShowPartModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [imageMarkerX, setImageMarkerX] = useState(-1);
+  const [imageMarkerY, setImageMarkerY] = useState(-1);
+  const [imageWidth, setImageWidth] = useState(0);
+  const [imageHeight, setImageHeight] = useState(0);
 
   const reducePartStock = (part, amount) => {
     let data = {
@@ -102,43 +107,94 @@ const BOMView = () => {
         variant="danger"
       />
       <hr></hr>
-      <Table striped hover>
-        <thead>
-          <tr>
-            <th>IMG</th>
-            <th>Designators</th>
-            <th>Count</th>
-            <th>Part Stock</th>
-            <th>Part Location</th>
-            <th>Part ID</th>
-            <th>Part Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bom?.parts.map((bomPart) => (
-            <tr
-              onClick={() => {
-                setModalPart(bomPart.part);
-                setModalPartCount(bomPart.designators.length);
-                setShowPartModal(true);
-              }}
-            >
-              <td>
-                <img
-                  className="img-thumb"
-                  src={getImageUrl(bomPart.part)}
-                ></img>
-              </td>
-              <td>{bomPart.designators.map((d) => d.name).join(", ")}</td>
-              <td>{bomPart.designators.length}</td>
-              <td>{bomPart.part.stock}</td>
-              <td>{bomPart.part.location.name}</td>
-              <td>#{bomPart.part.id}</td>
-              <td>{generateDisplayName(bomPart.part)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      <Row>
+        <Col className="col-md-3">
+          <h5>PCB Image</h5>
+          {imageMarkerX === -1 || imageMarkerY === -1 ? (
+            <></>
+          ) : (
+            <>
+              <div
+                style={{
+                  top: imageHeight * imageMarkerY + 10,
+                  left: imageWidth * imageMarkerX,
+                }}
+                class="red-circle"
+              ></div>
+            </>
+          )}
+
+          <img
+            id="pcbImage"
+            className="bom-pcb-image"
+            src={getApiEndpoint(`/bom/image?id=${bom?.id}`)}
+            onLoad={(e) => {
+              setImageWidth(e.target.offsetWidth);
+              setImageHeight(e.target.offsetHeight);
+              console.log(e.target.offsetWidth, e.target.offsetHeight);
+            }}
+          />
+        </Col>
+        <Col className="col-md-9">
+          <Table striped hover>
+            <thead>
+              <tr>
+                <th>IMG</th>
+                <th>Designators</th>
+                <th>Count</th>
+                <th>Part Stock</th>
+                <th>Part Location</th>
+                <th>Part ID</th>
+                <th>Part Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bom?.parts.map((bomPart) => (
+                <tr>
+                  <td>
+                    <img
+                      className="img-thumb"
+                      src={getImageUrl(bomPart.part)}
+                    ></img>
+                  </td>
+                  <td>
+                    {bomPart.designators.map((d, idx) => (
+                      <>
+                        <a
+                          href="javascript:null"
+                          onClick={() => {
+                            setImageMarkerX(d.location_x);
+                            setImageMarkerY(d.location_y);
+                          }}
+                        >
+                          {d.name}
+                        </a>{" "}
+                        {idx != bomPart.designators.length - 1 ? "," : ""}{" "}
+                      </>
+                    ))}
+                  </td>
+                  <td>{bomPart.designators.length}</td>
+                  <td>{bomPart.part.stock}</td>
+                  <td>{bomPart.part.location.name}</td>
+                  <td>#{bomPart.part.id}</td>
+                  <td>
+                    <a
+                      href="javascript:null"
+                      onClick={() => {
+                        setModalPart(bomPart.part);
+                        setModalPartCount(bomPart.designators.length);
+                        setShowPartModal(true);
+                      }}
+                    >
+                      {generateDisplayName(bomPart.part)}
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Col>
+      </Row>
       {!!modalPart ? (
         <>
           <Modal
