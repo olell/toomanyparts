@@ -70,6 +70,7 @@ from tomapa.api.sources import SourceApi
 from tomapa.api.search import SearchApi
 from tomapa.api.bom import BOMsApi
 from tomapa.api.bom import BOMApi
+from tomapa.api.bom import BOMImageApi
 
 flask_api.add_resource(CategoriesApi, "/api/categories")
 flask_api.add_resource(CategoryApi, "/api/category")
@@ -89,6 +90,7 @@ flask_api.add_resource(SourceApi, "/api/source")
 flask_api.add_resource(SearchApi, "/api/search")
 flask_api.add_resource(BOMsApi, "/api/boms")
 flask_api.add_resource(BOMApi, "/api/bom")
+flask_api.add_resource(BOMImageApi, "/api/bom/image")
 
 app.logger.info("Hey there!")
 

@@ -1,10 +1,14 @@
 from flask_restful import Resource
 from flask_restful import abort
 from flask import request
+from flask import current_app
+from flask import send_from_directory
 from marshmallow import Schema, fields, post_load
 
 import csv
 import io
+import uuid
+import os
 
 from tomapa.api import load_schema_or_abort
 from tomapa.models.parts import Part
@@ -56,6 +60,12 @@ class BOMsApi(Resource):
         return {"boms": boms}
 
 
+class BOMImageApi(Resource):
+    def get(self):
+        bom = load_schema_or_abort(BOMGetSchema, "args")
+        return send_from_directory(current_app.config["UPLOAD_DIR"], bom.pcb_image)
+
+
 class BOMApi(Resource):
     def get(self):
         """
@@ -65,6 +75,8 @@ class BOMApi(Resource):
 
     def post(self):
         """Creats a BOM from a given CSV file"""
+
+        # Reading CSV File
         if not "file" in request.files:
             abort(400, message="Missing file")
 
@@ -80,6 +92,26 @@ class BOMApi(Resource):
             buf.seek(0)
             reader = csv.DictReader(io.TextIOWrapper(buf))
             bom_data = [row for row in reader]
+
+        # Reading Image file
+        img_path = None
+        if "image_file" in request.files:
+            img_file = request.files["image_file"]
+            img_filename = img_file.filename
+            if img_filename != "":
+                if "." in img_filename and img_filename.rsplit(".", 1)[1].lower() in {
+                    "pdf",
+                    "png",
+                    "jpg",
+                    "jpeg",
+                }:
+                    img_filename = (
+                        str(uuid.uuid4()) + "." + img_filename.rsplit(".", 1)[1].lower()
+                    )
+                    img_file.save(
+                        os.path.join(current_app.config["UPLOAD_DIR"], img_filename)
+                    )
+                    img_path = img_filename
 
         parts = []
         for row in bom_data:
@@ -116,7 +148,11 @@ class BOMApi(Resource):
         metadata = load_schema_or_abort(BOMPostSchema, "form")
 
         # Creating BOM
-        bom = BOM(name=metadata["name"], description=metadata.get("description", ""))
+        bom = BOM(
+            name=metadata["name"],
+            description=metadata.get("description", ""),
+            pcb_image=img_path,
+        )
         bom.save(1)
 
         # Creating BOMParts

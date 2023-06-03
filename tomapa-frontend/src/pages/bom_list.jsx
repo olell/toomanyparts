@@ -9,6 +9,7 @@ const BOMPage = () => {
   const [bomFilter, setBomFilter] = useState("");
 
   const [bomFile, setBomFile] = useState();
+  const [pcbImage, setPcbImage] = useState();
   const [bomName, setBomName] = useState("");
   const [bomDescription, setBomDescription] = useState("");
 
@@ -26,9 +27,12 @@ const BOMPage = () => {
     });
   };
 
-  const postBOM = (file, name, description) => {
+  const postBOM = (file, imagefile, name, description) => {
     var data = new FormData();
     data.append("file", file);
+    if (!!imagefile) {
+      data.append("image_file", imagefile);
+    }
     data.append("name", name);
     if (!!description) {
       data.append("description", description);
@@ -67,11 +71,22 @@ const BOMPage = () => {
             }}
           />
         </Form.Group>
+        <Form.Group controlId="formImgFile">
+          <Form.Label>PCB Image</Form.Label>
+          <Form.Control
+            type="file"
+            onChange={(e) => {
+              if (e.target.files.length == 1) {
+                setPcbImage(e.target.files[0]);
+              }
+            }}
+          />
+        </Form.Group>
         <Button
           variant="success"
           className="mt-1"
           onClick={() => {
-            postBOM(bomFile, bomName, bomDescription);
+            postBOM(bomFile, pcbImage, bomName, bomDescription);
           }}
         >
           Create BOM
