@@ -56,6 +56,14 @@ const NavBar = ({ theme, setTheme, setSearchQuery }) => {
             >
               New Part
             </Nav.Link>
+            <Nav.Link
+              onClick={() => {
+                navigate("/bom");
+              }}
+              active={location.pathname == "/bom"}
+            >
+              BOM Tool
+            </Nav.Link>
             <NavDropdown title="Theme" className="float-end">
               <NavDropdown.Item onClick={() => setTheme("dark")}>
                 Dark

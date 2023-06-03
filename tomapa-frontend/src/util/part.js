@@ -49,3 +49,14 @@ export const getDocUrl = (doc) => {
    */
   return getApiEndpoint(`/doc?id=${doc.id}`);
 };
+
+export const getImageUrl = (part) => {
+  // Returns the url of the first found image
+  let result = "";
+  part.docs.forEach((doc) => {
+    if (doc.type === "image" && !!!result) {
+      result = getDocUrl(doc);
+    }
+  });
+  return result;
+};
