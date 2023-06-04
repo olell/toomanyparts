@@ -1,2 +1,10 @@
 flask
 peewee
+flask-restful
+blabel
+requests
+marshmallow
+uuid
+gunicorn
+flask-cors
+psycopg2-binary
