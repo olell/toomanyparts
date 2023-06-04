@@ -2,7 +2,7 @@ services:
   backend:
     image: olel/tomapa
     environment:
-      LOGGING_LEVEL: DEBUG
+      LOGGING_LEVEL: INFO
       DB_TYPE: postgresql
       DB_HOST: tomapa_db
       DB_PORT: 5432
@@ -24,5 +24,3 @@ services:
       POSTGRES_DB: tomapa
       POSTGRES_USER: tomapa
     container_name: tomapa_db
-    ports:
-      - "5432:5432"
