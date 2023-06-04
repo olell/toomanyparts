@@ -20,8 +20,9 @@ const BOMView = () => {
   const [showPartModal, setShowPartModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const [imageMarkerX, setImageMarkerX] = useState(-1);
-  const [imageMarkerY, setImageMarkerY] = useState(-1);
+  const [imageMarkers, setImageMarkers] = useState([]);
+  const [imageX, setImageX] = useState(0);
+  const [imageY, setImageY] = useState(0);
   const [imageWidth, setImageWidth] = useState(0);
   const [imageHeight, setImageHeight] = useState(0);
 
@@ -110,19 +111,18 @@ const BOMView = () => {
       <Row>
         <Col className="col-md-3">
           <h5>PCB Image</h5>
-          {imageMarkerX === -1 || imageMarkerY === -1 ? (
-            <></>
-          ) : (
+          {imageMarkers.map((marker) => (
             <>
               <div
                 style={{
-                  top: imageHeight * imageMarkerY + 10,
-                  left: imageWidth * imageMarkerX,
+                  top: imageY + imageHeight * marker[1] - 10,
+                  left: imageX + imageWidth * marker[0],
+                  position: "absolute",
                 }}
                 class="red-circle"
               ></div>
             </>
-          )}
+          ))}
 
           <img
             id="pcbImage"
@@ -131,7 +131,9 @@ const BOMView = () => {
             onLoad={(e) => {
               setImageWidth(e.target.offsetWidth);
               setImageHeight(e.target.offsetHeight);
-              console.log(e.target.offsetWidth, e.target.offsetHeight);
+              setImageX(e.target.offsetLeft);
+              setImageY(e.target.offsetTop);
+              console.log("e??", e);
             }}
           />
         </Col>
@@ -157,18 +159,21 @@ const BOMView = () => {
                       src={getImageUrl(bomPart.part)}
                     ></img>
                   </td>
-                  <td>
+                  <td
+                    onClick={(e) => {
+                      console.log(e);
+                      let markers = [];
+                      bomPart.designators.forEach((d) => {
+                        if (d.location_x !== -1 && d.location_y !== -1) {
+                          markers.push([d.location_x, d.location_y]);
+                        }
+                      });
+                      setImageMarkers(markers);
+                    }}
+                  >
                     {bomPart.designators.map((d, idx) => (
                       <>
-                        <a
-                          href="javascript:null"
-                          onClick={() => {
-                            setImageMarkerX(d.location_x);
-                            setImageMarkerY(d.location_y);
-                          }}
-                        >
-                          {d.name}
-                        </a>{" "}
+                        {d.name}
                         {idx != bomPart.designators.length - 1 ? "," : ""}{" "}
                       </>
                     ))}
