@@ -79,6 +79,51 @@ const BOMView = () => {
     <>
       <h1>{bom?.name}</h1>
 
+      {!!modalPart ? (
+        <>
+          <Modal
+            size="xl"
+            show={showPartModal}
+            onHide={() => setShowPartModal(false)}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>
+                <h3>
+                  <a
+                    href="javascript:null"
+                    onClick={() => navigate(`/part/${modalPart.id}`)}
+                  >
+                    {generateDisplayName(modalPart)}
+                  </a>
+                </h3>
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <PartView showControls={false} partId={modalPart.id} />
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="danger"
+                onClick={() => {
+                  reducePartStock(modalPart, modalPartCount);
+                  setShowPartModal(false);
+                }}
+              >
+                Reduce stock by {modalPartCount}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setShowPartModal(false)}
+              >
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </>
+      ) : (
+        <></>
+      )}
+
       {bomStock > 0 ? (
         <span>Enough parts in stock to build this BOM {bomStock} times!</span>
       ) : (
@@ -137,7 +182,7 @@ const BOMView = () => {
             }}
           />
         </Col>
-        <Col className="col-md-9">
+        <Col className="col-md-9 overflow-scroll" style={{ maxHeight: "80vh" }}>
           <Table striped hover>
             <thead>
               <tr>
@@ -181,7 +226,7 @@ const BOMView = () => {
                   <td>{bomPart.designators.length}</td>
                   <td>{bomPart.part.stock}</td>
                   <td>{bomPart.part.location.name}</td>
-                  <td>#{bomPart.part.id}</td>
+                  <td className="fw-bold">#{bomPart.part.id}</td>
                   <td>
                     <a
                       href="javascript:null"
@@ -200,50 +245,6 @@ const BOMView = () => {
           </Table>
         </Col>
       </Row>
-      {!!modalPart ? (
-        <>
-          <Modal
-            size="xl"
-            show={showPartModal}
-            onHide={() => setShowPartModal(false)}
-          >
-            <Modal.Header closeButton>
-              <Modal.Title>
-                <h3>
-                  <a
-                    href="javascript:null"
-                    onClick={() => navigate(`/part/${modalPart.id}`)}
-                  >
-                    {generateDisplayName(modalPart)}
-                  </a>
-                </h3>
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <PartView showControls={false} partId={modalPart.id} />
-            </Modal.Body>
-            <Modal.Footer>
-              <Button
-                variant="danger"
-                onClick={() => {
-                  reducePartStock(modalPart, modalPartCount);
-                  setShowPartModal(false);
-                }}
-              >
-                Reduce stock by {modalPartCount}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => setShowPartModal(false)}
-              >
-                Close
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        </>
-      ) : (
-        <></>
-      )}
     </>
   );
 };
