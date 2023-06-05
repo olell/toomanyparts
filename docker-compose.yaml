@@ -3,24 +3,24 @@ services:
     image: olel/tomapa
     environment:
       LOGGING_LEVEL: INFO
-      DB_TYPE: postgresql
-      DB_HOST: tomapa_db
-      DB_PORT: 5432
-      DB_DATABASE: tomapa
-      DB_USER: tomapa
-      DB_PASS: tomapa
+      DB_TYPE: sqlite
+      DB_LOCATION: /db_dev.sqlite3
       UPLOAD_DIR: /upload_dir
       MOUSER_KEY: ${MOUSER_KEY}
     volumes:
       - ./tomapa-server/uploads:/upload_dir
+      - ./tomapa-server/db_dev.sqlite3:/db_dev.sqlite3
     container_name: friedrich
     ports:
       - "3279:8081"
-  database:
-    image: postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: tomapa
-      POSTGRES_DB: tomapa
-      POSTGRES_USER: tomapa
-    container_name: tomapa_db
+#  database:
+#    image: postgres
+#    restart: unless-stopped#
+#    environment:
+#      POSTGRES_PASSWORD: tomapa
+#      POSTGRES_DB: tomapa
+#      POSTGRES_USER: tomapa
+#    container_name: tomapa_db
+#    ports:
+#      - "5432:5432"
+#
