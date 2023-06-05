@@ -4,6 +4,7 @@ import { Button, Col, Form, ListGroup, Row, Table } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   CheckCircle,
+  Copy,
   Edit2,
   FileText,
   MinusCircle,
@@ -517,6 +518,17 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
                       </td>
                       <td className="property-table-value">
                         {propertyValueRepresentation(property)}
+                        {["src_no"].indexOf(property.name) !== -1 && (
+                          <Button
+                            variant="outline-info"
+                            className="border-0"
+                            onClick={(e) => {
+                              navigator.clipboard.writeText(property.value);
+                            }}
+                          >
+                            <Copy />
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   )
