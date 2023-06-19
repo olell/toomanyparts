@@ -25,6 +25,7 @@ const BOMView = () => {
   const [imageY, setImageY] = useState(0);
   const [imageWidth, setImageWidth] = useState(0);
   const [imageHeight, setImageHeight] = useState(0);
+  const [flipMarker, setFlipMarker] = useState(false);
 
   const reducePartStock = (part, amount) => {
     let data = {
@@ -161,7 +162,9 @@ const BOMView = () => {
               <div
                 style={{
                   top: imageY + imageHeight * marker[1] - 10,
-                  left: imageX + imageWidth * marker[0],
+                  left:
+                    imageX +
+                    imageWidth * (flipMarker ? 1 - marker[0] : marker[0]),
                   position: "absolute",
                 }}
                 class="red-circle"
@@ -181,6 +184,15 @@ const BOMView = () => {
               console.log("e??", e);
             }}
           />
+          <Button
+            className="mt-3"
+            variant="info"
+            onClick={() => {
+              setFlipMarker(!flipMarker);
+            }}
+          >
+            Flip Markers
+          </Button>
         </Col>
         <Col className="col-md-9 overflow-scroll" style={{ maxHeight: "80vh" }}>
           <Table striped hover>
