@@ -115,6 +115,8 @@ class Model(PeeweeModel):
                     result.update({field.name: value})
 
         for backref in self.dict_backrefs:
+            if backref in fields_to_omit: continue
+            
             own_name = self.dict_backrefs[backref]
             fields = []
             for field in self.__getattribute__(backref):
