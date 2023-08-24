@@ -211,6 +211,7 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
           ) : (
             <></>
           )}
+          <br></br>
           <Button
             variant="link"
             size="sm"

@@ -95,3 +95,4 @@ const CategoriesSidebar = ({ partsChanged }) => {
 };
 
 export default CategoriesSidebar;
+export {CategoriesSidebar, CategoryAccordion};

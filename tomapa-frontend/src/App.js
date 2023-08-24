@@ -38,7 +38,7 @@ function App() {
       <CategoriesSidebar partsChanged={partsChanged} />
       <Container className="content-container">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home partsChanged={partsChanged}/>} />
           <Route
             path="/part/:id"
             element={<PartView setPartsChanged={setPartsChanged} />}

@@ -16,11 +16,18 @@
   .category-sidebar{
     display:none;
   }
+  .category-container {
+    display: unset !important;
+  }
   .content-container{
     left: unset !important;
     width: 100vw !important;
     max-width: 100vw !important;
   }
+}
+
+.category-container {
+  display: none;
 }
 
 .category-sidebar {
