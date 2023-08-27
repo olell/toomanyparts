@@ -13,6 +13,9 @@
   padding-left: 20px !important;
 }
 @media screen and (orientation:portrait) {
+  .categories-accordion {
+    border-left: unset !important;
+  }
   .category-sidebar{
     display:none;
   }
