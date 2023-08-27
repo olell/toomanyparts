@@ -12,7 +12,7 @@ COPY tomapa-server /server
 
 COPY tomapa-frontend /frontend
 WORKDIR /frontend
-RUN npm install
+RUN npm install --force
 RUN npm run build
 RUN cp -r build/ /server/tomapa/static/frontend
 
