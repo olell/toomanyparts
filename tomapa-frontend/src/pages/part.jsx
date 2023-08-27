@@ -162,12 +162,20 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
   }, [partId]);
 
   useEffect(() => {
-    if (part) {
-      let cat = part.category;
+    if (part && !!categories) {
+      let cat = {...part.category, me: 1};
       let path = [];
       do {
         path.push(cat);
-        cat = cat?.parent;
+        if (!!cat.parent) {
+          categories?.forEach((e) => {
+            if (e.id == cat.parent) {
+              cat = e;
+            }
+          });
+        } else {
+          cat = null;
+        }
       } while (cat);
       setCategoryPath(path.reverse());
 
@@ -195,7 +203,7 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
           setSourceUrl(`https://www.mouser.de/ProductDetail/${src_no}`);
       }
     }
-  }, [part]);
+  }, [part, categories]);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -300,7 +308,7 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
                       >
                         {el?.name}
                       </Button>
-                      {el?.children?.length > 0 ? " / " : " "}
+                      {el.me ? "" : " / "}
                     </>
                   ))}
                 </Col>

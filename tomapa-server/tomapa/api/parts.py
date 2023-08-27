@@ -269,7 +269,13 @@ class PartsGetFilterSchema(Schema):
 class PartApi(Resource):
     def get(self):
         part = load_schema_or_abort(PartGetSchema, "args")
-        return part.as_dict(), 200
+        return part.as_dict(custom={
+            "category": {
+                "id": part.category.id,
+                "name": part.category.name,
+                "parent": part.category.parent_id,
+            }
+        }), 200
 
     def post(self):
         new_part = load_schema_or_abort(PartPostSchema)

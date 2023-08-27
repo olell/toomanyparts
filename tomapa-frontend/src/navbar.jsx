@@ -18,10 +18,10 @@ const NavBar = ({ theme, setTheme, setSearchQuery }) => {
 
   useEffect(() => {
     const searchDebounce = setTimeout(() => {
-      
-      setSearchQuery(queryInput);
-      navigate("/search");
-
+      if (queryInput !== "") {
+        setSearchQuery(queryInput);
+        navigate("/search");
+      }
     }, 1000);
     return () => clearTimeout(searchDebounce);
   }, [queryInput])
