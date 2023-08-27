@@ -13,6 +13,7 @@ import CreatePart from "./pages/create_part";
 import SearchPage from "./pages/search";
 import BOMPage from "./pages/bom_list";
 import BOMView from "./pages/bom_view";
+import PartScanner from "./pages/part_scanner";
 
 function App() {
   const [partsChanged, setPartsChanged] = useState(0);
@@ -51,6 +52,7 @@ function App() {
           <Route path="/search" element={<SearchPage query={searchQuery} />} />
           <Route path="/bom" element={<BOMPage />} />
           <Route path="/bomview/:id" element={<BOMView />} />
+          <Route path="/scanner" element={<PartScanner />} />
         </Routes>
       </Container>
     </>
