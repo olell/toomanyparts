@@ -46,7 +46,7 @@ const PropertyFilter = ({ property, units, filter, setFilter, allValues }) => {
                       className={
                         allValues.indexOf(v[0]) === -1
                           ? "text-muted"
-                          : "text-dark"
+                          : "text-body"
                       }
                     >
                       {v[2]}

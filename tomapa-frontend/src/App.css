@@ -1,7 +1,7 @@
 .categories-accordion {
   text-align: left !important;
-  border-bottom: 1px solid white;
-  border-left: 1px solid var(--bs-secondary);
+  /*border-bottom: 1px solid white;*/
+  /*border-left: 1px solid var(--bs-secondary);*/
 }
 .accordion-button:not(.collapsed) {
   background-color: var(--bs-bg-dark) !important;

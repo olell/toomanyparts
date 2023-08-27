@@ -18,16 +18,14 @@ import PartScanner from "./pages/part_scanner";
 function App() {
   const [partsChanged, setPartsChanged] = useState(0);
   var storedTheme = localStorage.getItem("bstheme");
-  if (!!!storedTheme) storedTheme = "solar";
+  if (!!!storedTheme) storedTheme = "light";
   const [theme, setTheme] = useState(storedTheme);
 
-  const [searchQuery, setSearchQuery] = useState("");
-
   useEffect(() => {
-    localStorage.setItem("bstheme", theme);
-    const url = `/bs_${theme === "dark" ? "solar" : "sandstone"}.min.css`;
-    document.getElementById("bs_link").setAttribute("href", url);
-  }, [theme]);
+    document.getElementById("htmlelement").setAttribute("data-bs-theme", theme);
+  }, [theme])
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <>

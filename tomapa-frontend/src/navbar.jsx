@@ -29,9 +29,7 @@ const NavBar = ({ theme, setTheme, setSearchQuery }) => {
   return (
     <Navbar
       bg="primary"
-      className={`${
-        theme == "dark" ? "navbar-dark bg-dark" : "navbar-dark"
-      } fixed-top`}
+      className={`navbar-dark bg-dark fixed-top`}
       expand="lg"
     >
       <Container className="ms-2">
