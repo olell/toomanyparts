@@ -1,18 +1,18 @@
 from tomapa.models.parts import Unit
 
 
-def parse_unit_token(token):
+def parse_unit_token(token, all_units=None):
     """
     tries to parse smth like 100mW to int(100), Unit(mW)
     """
 
-    all_units = [unit.name for unit in Unit.select()]
-    all_units.sort(key=lambda x: -len(x))
+    if all_units is None: all_units = list(Unit.select())
+    all_units.sort(key=lambda x: -len(x.name))
 
     target_unit = None
     for unit in all_units:
-        if token.endswith(unit):
-            target_unit = Unit.get_or_none(Unit.name == unit)
+        if token.endswith(unit.name):
+            target_unit = unit
             break
 
     if target_unit is None:

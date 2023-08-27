@@ -6,6 +6,10 @@ from marshmallow import post_load
 
 from tomapa.api import load_schema_or_abort
 from tomapa.models.parts import Part
+from tomapa.models.parts import Unit
+from tomapa.models.parts import StorageLocation
+from tomapa.models.parts import PartCategory
+from tomapa.models.parts import PartProperty
 
 from tomapa.util.unitparse import parse_unit_token
 from tomapa.util.units import get_base
@@ -15,6 +19,7 @@ from math import isclose
 
 class SearchGetSchema(Schema):
     query = fields.String(required=True)
+
 
     @post_load
     def search_parts(self, data, **_):
@@ -26,44 +31,52 @@ class SearchGetSchema(Schema):
         query = query.lower()
 
         all_parts = Part.select()
-        search_results = []
+        all_units = list(Unit.select())
+        all_properties = PartProperty.select()
+
+        # Querying locations and categories contianing the given search query case insensitive
+        matching_locations = [x.id for x in StorageLocation.select(StorageLocation.id).where(StorageLocation.name ** query)]
+        matching_categories = [x.id for x in PartCategory.select(PartCategory.id).where(PartCategory.name ** query)]
+
+        string_matching_properties = [x.part_id for x in PartProperty.select(PartProperty.part_id).where(PartProperty.value ** query)]
+
+        search_results = set()
         for part in all_parts:
-            does_match = False
-
             if (
-                query in part.description.lower()
-                or query in part.location.name.lower()
-                or query in part.category.name.lower()
+                query in part.description.lower() or
+                part.location_id in matching_locations or
+                part.category_id in matching_categories or
+                part.id in string_matching_properties
             ):
-                does_match = True
+                search_results.add(part.id)
 
-            values = []
-            for token in tokens:
-                value, unit = parse_unit_token(token)
-                if value is not None and unit is not None:
-                    values.append(get_base(value, unit))
+        values = []
+        for token in tokens:
+            value, unit = parse_unit_token(token, all_units=all_units)
+            if value is not None and unit is not None:
+                values.append(get_base(value, unit))
+                
+        for property in all_properties:
+            if property.part_id in search_results: continue
 
-            print(values)
+            for value, unit in values:
+                if type(property.get_value()) != float:
+                    if property.get_value() == value and property.unit_id == unit.id:
+                        search_results.add(property.part_id)
+                else:
+                    if (
+                        isclose(property.get_value(), value)
+                        and property.unit == unit
+                    ):
+                        search_results.add(property.part_id)
 
-            for property in part.properties:
-                if query in property.value.lower():
-                    does_match = True
-                for value, unit in values:
-                    print(part.id, property.get_value(), value)
-                    if type(property.get_value()) != float:
-                        if property.get_value() == value and property.unit == unit:
-                            does_match = True
-                    else:
-                        if (
-                            isclose(property.get_value(), value)
-                            and property.unit == unit
-                        ):
-                            does_match = True
+        result_parts = []
+        for pid in search_results:
+            for part in all_parts:
+                if part.id == pid:
+                    result_parts.append(part)
 
-            if does_match:
-                search_results.append(part)
-
-        return search_results
+        return result_parts
 
 
 class SearchApi(Resource):
