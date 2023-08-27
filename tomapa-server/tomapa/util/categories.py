@@ -2,16 +2,16 @@ from tomapa.models.parts import PartCategory
 
 
 def get_categories_flat():
-    return [
-        {
-            "name": o.name,
-            "parent": o.parent.id if o.parent is not None else None,
-            "id": o.id,
-            "children_count": len(o.children),
-        }
-        for o in PartCategory.select()
-    ]
-
+    categories = PartCategory.select()
+    result = []
+    for category in categories:
+        result.append({
+            "name": category.name,
+            "parent": category.parent_id,
+            "id": category.id,
+            "children_count": sum([1 if x.parent_id == category.id else 0 for x in categories])
+        })
+    return result
 
 def get_categories_tree():
     objects = get_categories_flat()
@@ -31,13 +31,3 @@ def get_categories_tree():
 
     return tree
 
-
-def is_part_in_child_category(part, category):
-    if part.category == category:
-        return True
-
-    for child in category.children:
-        if is_part_in_child_category(part, child):
-            return True
-
-    return False

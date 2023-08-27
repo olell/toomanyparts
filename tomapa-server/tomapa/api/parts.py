@@ -15,7 +15,6 @@ from tomapa.models.docs import PartDocument
 
 from tomapa.api.properties import PartPropertyPostSchema
 
-from tomapa.util.categories import is_part_in_child_category
 from tomapa.util.label import generate_label
 
 import requests
@@ -207,6 +206,22 @@ class PartsGetFilterSchema(Schema):
             category = PartCategory.get_or_none(PartCategory.id == category_id)
             if category is None:
                 return None  # Category id in params invalid
+            
+        valid_parents = []
+        if category_children:
+            all_categories = PartCategory.select()
+            valid_parents = [category.id]
+            processed_nodes = []
+            found = 1
+            while found > 0:
+                found = 0
+                
+                for category in all_categories:
+                    if category.id in processed_nodes: continue
+                    if category.parent_id in valid_parents:
+                        valid_parents.append(category.id)
+                        found += 1
+                    processed_nodes.append(category.id)
 
         # Get list of parts to filter from
         all_parts = Part.select()
@@ -216,10 +231,10 @@ class PartsGetFilterSchema(Schema):
 
             if category is not None:  # Category filter
                 if category_children:
-                    if not is_part_in_child_category(part, category):
+                    if not part.category_id in valid_parents:
                         use_part = False
                 else:
-                    if part.category != category:
+                    if part.category_id != category.id:
                         use_part = False
 
             for property_filter in data.get("property_filter", []):

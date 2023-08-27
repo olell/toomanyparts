@@ -34,41 +34,11 @@ const CategoriesContainer = ({ partsChanged }) => {
 const Home = (partsChanged) => {
   const navigate = useNavigate();
 
-  const [parts, setParts] = useState();
-  const [potd, setPotd] = useState();
-
-  useEffect(() => {
-    axios.get(getApiEndpoint("/parts")).then((result) => {
-      if (result.status === 200) {
-        setParts(result.data.parts);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!!parts) {
-      setPotd(parts[Math.floor(Math.random() * parts?.length)]);
-    }
-  }, [parts]);
-
-
   return (
     <>
       <h1>Welcome!</h1>
       <hr></hr>
-      <h4>Random Part from your collection:</h4>
-      <Button
-        className="heading-2"
-        variant="link"
-        onClick={() => {
-          navigate(`/part/${potd?.id}`);
-        }}
-      >
-        {!!potd ? generateDisplayName(potd) : ""}
-      </Button>
-      <hr></hr>
       <CategoriesContainer partsChanged={partsChanged}/>
-      
       </>
   );
 };

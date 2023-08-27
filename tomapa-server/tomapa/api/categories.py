@@ -93,7 +93,7 @@ class CategoryApi(Resource):
         and about the parents recursively
         """
         category = load_schema_or_abort(CategoryGetSchema, "args")
-        return category.as_dict(), 200
+        return category.as_dict(omit=["parent"]), 200
 
     def post(self):
         """
