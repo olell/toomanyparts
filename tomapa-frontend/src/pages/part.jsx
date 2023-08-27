@@ -190,7 +190,7 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
       });
       if (!!src && !!src_no) {
         if (src.toLowerCase() == "lcsc")
-          setSourceUrl(`https://www.lcsc.com/search?q=${src_no}`);
+          setSourceUrl(`https://www.lcsc.com/product-detail/${src_no}.html`);
         if (src.toLowerCase() == "mouser")
           setSourceUrl(`https://www.mouser.de/ProductDetail/${src_no}`);
       }
