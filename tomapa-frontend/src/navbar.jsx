@@ -6,12 +6,25 @@ import {
   FormGroup,
   FormControl,
 } from "react-bootstrap";
+import {useState, useEffect} from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./App.css";
 
 const NavBar = ({ theme, setTheme, setSearchQuery }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [queryInput, setQueryInput] = useState("");
+
+  useEffect(() => {
+    const searchDebounce = setTimeout(() => {
+      
+      setSearchQuery(queryInput);
+      navigate("/search");
+
+    }, 1000);
+    return () => clearTimeout(searchDebounce);
+  }, [queryInput])
 
   return (
     <Navbar
@@ -86,8 +99,7 @@ const NavBar = ({ theme, setTheme, setSearchQuery }) => {
               type="text"
               placeholder="Search Parts"
               onChange={(e) => {
-                setSearchQuery(e.target.value);
-                navigate("/search");
+                setQueryInput(e.target.value);
               }}
             ></FormControl>
           </FormGroup>
