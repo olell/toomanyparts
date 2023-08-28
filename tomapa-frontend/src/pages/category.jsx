@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router";
 import PartsList from "../components/parts_list";
 import PropertyFilter from "../components/property_filter";
 import { getApiEndpoint } from "../util/api";
+import { Button, Collapse } from "react-bootstrap";
 
 const Category = () => {
   const { id } = useParams();
@@ -12,6 +13,7 @@ const Category = () => {
 
   const [partsFilter, setPartsFilter] = useState();
   const [propertyFilter, setPropertyFilter] = useState();
+  const [showFilters, setShowFilters] = useState(false);
 
   const [parts, setParts] = useState();
 
@@ -90,7 +92,11 @@ const Category = () => {
     <>
       <h1>{category?.name}</h1>
       <hr></hr>
-      <div className="d-flex">
+      <Button variant="link" size="lg" onClick={() => {setShowFilters(!showFilters)}}>
+        {showFilters ? "Hide" : "Show" } Filters
+      </Button>
+      <div style={{display: showFilters ? "" : "none"}}>
+      <div className="property-filter">
         {Object.values(properties)?.map((property) => (
           <PropertyFilter
             property={property}
@@ -100,6 +106,7 @@ const Category = () => {
             setFilter={setPropertyFilter}
           />
         ))}
+      </div>
       </div>
       {category !== undefined ? (
         <PartsList

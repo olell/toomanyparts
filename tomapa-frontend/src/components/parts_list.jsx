@@ -21,7 +21,7 @@ const PartsList = ({ parts, onClick = (part) => {} }) => {
   };
 
   return (
-    <>
+    <div style={{ overflowX: "scroll" }}>
       <Table striped hover style={{ cursor: "pointer" }}>
         <thead>
           <tr>
@@ -98,7 +98,7 @@ const PartsList = ({ parts, onClick = (part) => {} }) => {
             ))}
         </tbody>
       </Table>
-    </>
+    </div>
   );
 };
 

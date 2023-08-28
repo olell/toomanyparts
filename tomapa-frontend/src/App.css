@@ -27,6 +27,13 @@
     width: 100vw !important;
     max-width: 100vw !important;
   }
+  .property-filter {
+    display: block !important;
+  }
+}
+
+.property-filter {
+  display: flex;
 }
 
 .category-container {
