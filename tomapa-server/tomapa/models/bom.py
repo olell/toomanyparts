@@ -21,6 +21,7 @@ class BOM(Model):
 
 class BOMPart(Model):
     dict_backrefs = {"designators": "bom_part"}
+    child_omit = {"part": ["category"]}
     bom = peewee.ForeignKeyField(BOM, backref="parts")
     part = peewee.ForeignKeyField(Part)
 

@@ -1,6 +1,6 @@
 def get_bigger(value, unit):
     """Returns the given value transformed to the next bigger unit"""
-    if unit.bigger is None:
+    if unit.bigger_id is None:
         return value, unit
     else:
         return value / unit.bigger_div, unit.bigger
@@ -8,7 +8,7 @@ def get_bigger(value, unit):
 
 def get_smaller(value, unit):
     """Returns the given value transformed to the next smaller unit"""
-    if unit.smaller is None:
+    if unit.smaller_id is None:
         return value, unit
     else:
         return value * unit.smaller_mul, unit.smaller
@@ -53,11 +53,11 @@ def get_base(value, unit):
     # This is a bit hacky, but in the first step I go to the biggest value and after that
     # I go from the biggest to the smallest. If I reach the base at any point the value is
     # returned
-    while unit.smaller is not None:
+    while unit.smaller_id is not None:
         value, unit = get_smaller(value, unit)
         if unit.base == unit:
             return value, unit
-    while unit.bigger is not None:
+    while unit.bigger_id is not None:
         value, unit = get_bigger(value, unit)
         if unit.base == unit:
             return value, unit
@@ -67,10 +67,10 @@ def get_base(value, unit):
 def get_unit_group(unit):
     units = list()
 
-    while unit.smaller is not None:
+    while unit.smaller_id is not None:
         unit = unit.smaller
     units.append(unit)
-    while unit.bigger is not None:
+    while unit.bigger_id is not None:
         unit = unit.bigger
         units.append(unit)
 

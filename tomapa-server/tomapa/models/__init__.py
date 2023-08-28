@@ -92,6 +92,7 @@ class Database(object):
 
 class Model(PeeweeModel):
     dict_backrefs = {}
+    child_omit = {}
     dict_omit = []
 
     class Meta:
@@ -110,7 +111,7 @@ class Model(PeeweeModel):
             if not field.name in fields_to_omit:
                 value = self.__getattribute__(field.name)
                 if "as_dict" in dir(value):
-                    value = value.as_dict()
+                    value = value.as_dict(omit=self.child_omit.get(field.name, []))
                 if is_safe_json({field.name: value}):
                     result.update({field.name: value})
 
@@ -120,7 +121,7 @@ class Model(PeeweeModel):
             own_name = self.dict_backrefs[backref]
             fields = []
             for field in self.__getattribute__(backref):
-                fields.append(field.as_dict(omit=[own_name]))
+                fields.append(field.as_dict(omit=[own_name] + self.child_omit.get(backref, [])))
             brjson = {backref: fields}
             if is_safe_json(brjson):
                 result.update(brjson)
