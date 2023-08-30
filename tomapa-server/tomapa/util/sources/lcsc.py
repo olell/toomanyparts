@@ -1,5 +1,31 @@
-import requests
 from tomapa.util.unitparse import parse_unit_token
+from tomapa.models.parts import PartProperty
+from tomapa.models.parts import Part
+from tomapa.models.storage import StorageLocation
+from tomapa.models.parts import PartCategory
+from tomapa.models.docs import PartDocument
+
+from flask import current_app
+
+import uuid
+import requests
+import csv
+from io import StringIO
+import re
+import os
+
+def most_similar_string(target, candidates):
+    ta = re.split("\\-| |\\,|\\_|\\(|\\)|\\/", target.lower())
+    best = None
+    best_score = -1
+    for candidate in candidates:
+        tb = re.split("\\-| |\\,|\\_|\\(|\\)|\\/", candidate.lower())
+        score = sum([sum([a in b or b in a for a in ta if a != '']) for b in tb if b != ''])
+        if score > best_score:
+            best_score = score
+            best = candidate
+
+    return best
 
 lcsc_param_to_property = {
     "param_10835_n": ["r", "Resistance"],
@@ -16,7 +42,7 @@ lcsc_param_to_property = {
 }  # Todo: this list is not even close to being complete
 
 
-def get_lcsc_data(pc):
+def get_lcsc_data(pc, data_as_obj=False):
     """
     Returns information about a part from LCSC
     """
@@ -85,8 +111,6 @@ def get_lcsc_data(pc):
             string_value = param.get("paramValueEn", None)
             known_param = lcsc_param_to_property.get(param_code, None)
 
-            print(param_code, value, unit, string_value, param["paramNameEn"])
-
             if value is not None and unit is not None:
                 if known_param is not None:
                     properties.append(
@@ -95,7 +119,7 @@ def get_lcsc_data(pc):
                             "display_name": known_param[1],
                             "value": value,
                             "value_type": "float",
-                            "unit": unit.id,
+                            "unit": unit if data_as_obj else unit.id,
                         }
                     )
                     continue
@@ -120,6 +144,135 @@ def get_lcsc_data(pc):
         image = images[0]
         output.update({"imageUrl": image})
 
+    # Category
+    source_category = data.get("catalogName", None)
+    if source_category is not None:
+        all_categories = PartCategory.select()
+        category_names = [x.name for x in all_categories]
+        closest = most_similar_string(source_category, category_names)
+        for category in all_categories:
+            if category.name == closest:
+                if not data_as_obj:
+                    output.update({"category": category.id})
+                else:
+                    output.update({"category": category})
+
     output.update({"properties": properties})
 
     return output
+
+
+def import_lcsc_order(csv_text, create_missing_parts=True):
+    reader = csv.reader(StringIO(csv_text))
+    header = None
+    data = []
+    for row in reader:
+        if header is None:
+            header = row
+        else:
+            data.append(dict(zip(header, row)))
+
+    created_parts = []
+    modified_parts = []
+
+    for row in data:
+        source_no = row["LCSC Part Number"]
+        qty = row["Order Qty."]
+
+        part = None
+
+        # Trying to get a part with src==LCSC & src_id=={source_no}
+        av_part_prop = PartProperty.get_or_none(
+            PartProperty.name == "src_no" & PartProperty.value == source_no
+        )
+        if (
+            av_part_prop is not None
+            and PartProperty.select()
+            .where(
+                PartProperty.name=="src" &
+                PartProperty.value=="LCSC" & 
+                PartProperty.part_id==av_part_prop.part_id
+            )
+            .count()
+        ):
+            part = av_part_prop.part
+            part.stock += qty
+            part.save()
+            modified_parts.append(part)
+        
+
+        # If not part is found, create a new one
+        if part is None and create_missing_parts:
+            part_data = get_lcsc_data(source_no, data_as_obj=True)
+            if part_data is None:
+                continue
+
+            default_location = StorageLocation.get_or_none(StorageLocation.id==1)
+            category = part_data.get("category", None)
+            if category is None: # defaulting to first category
+                category = PartCategory.get_or_none(PartCategory.id==1)
+
+
+            part = Part(
+                stock=qty,
+                category=category,
+                description=part_data.get("description", ""),
+                location=default_location
+            )
+            part.save(1)
+
+            for property in part_data.get("properties", []):
+                prop = PartProperty(
+                    part=part,
+                    name=property["name"],
+                    display_name=property["display_name"],
+                    value=str(property["value"]),
+                    value_type=property["value_type"],
+                    unit=property.get("unit", None)
+                )
+                prop.save(1)
+
+            image_url = part_data.get("imageUrl", None)
+            if image_url is not None:
+                req = requests.get(
+                    image_url,
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0"
+                    },
+                )
+                if req.status_code == 200:
+                    filename = str(uuid.uuid4()) + "." + image_url.rsplit(".", 1)[1].lower()
+                    with open(
+                        os.path.join(current_app.config["UPLOAD_DIR"], filename), "wb+"
+                    ) as target:
+                        target.write(req.content)
+
+                    doc = PartDocument(part=part, type="image", path=filename)
+                    doc.save()
+
+            datasheet_url = part_data.get("datasheet", None)
+            if datasheet_url is not None:
+                req = requests.get(
+                    datasheet_url,
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0"
+                    },
+                )
+                if req.status_code == 200:
+                    filename = (
+                        str(uuid.uuid4()) + "." + datasheet_url.rsplit(".", 1)[1].lower()
+                    )
+                    with open(
+                        os.path.join(current_app.config["UPLOAD_DIR"], filename), "wb+"
+                    ) as target:
+                        target.write(req.content)
+
+                    doc = PartDocument(part=part, type="datasheet", path=filename)
+                    doc.save()
+            
+            created_parts.append(part)
+    
+    return {
+        "modified": modified_parts,
+        "created": created_parts
+    }
