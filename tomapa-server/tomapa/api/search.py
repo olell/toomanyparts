@@ -24,21 +24,23 @@ class SearchGetSchema(Schema):
     @post_load
     def search_parts(self, data, **_):
         query = data.get("query", None)
-        if query is None:
+        if query is None or query == "":
             return None
 
         tokens = query.split()
         query = query.lower()
+
 
         all_parts = Part.select()
         all_units = list(Unit.select())
         all_properties = PartProperty.select()
 
         # Querying locations and categories contianing the given search query case insensitive
-        matching_locations = [x.id for x in StorageLocation.select(StorageLocation.id).where(StorageLocation.name ** query)]
-        matching_categories = [x.id for x in PartCategory.select(PartCategory.id).where(PartCategory.name ** query)]
+        wildcard_query = "%{0}%".format(query)
+        matching_locations = [x.id for x in StorageLocation.select(StorageLocation.id).where(StorageLocation.name ** wildcard_query)]
+        matching_categories = [x.id for x in PartCategory.select(PartCategory.id).where(PartCategory.name ** wildcard_query)]
 
-        string_matching_properties = [x.part_id for x in PartProperty.select(PartProperty.part_id).where(PartProperty.value ** query)]
+        string_matching_properties = [x.part_id for x in PartProperty.select(PartProperty.part_id).where(PartProperty.value ** wildcard_query)]
 
         search_results = set()
         for part in all_parts:
