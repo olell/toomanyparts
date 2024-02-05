@@ -163,7 +163,10 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
 
   useEffect(() => {
     if (part && !!categories) {
-      let cat = {...part.category, me: 1};
+      let cat = { ...part.category, me: 1 };
+      if (!(Number.isInteger(cat.parent) || cat.parent === null)) {
+        cat.parent = cat.parent.id;
+      }
       let path = [];
       do {
         path.push(cat);
@@ -176,6 +179,7 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
         } else {
           cat = null;
         }
+        console.log(cat);
       } while (cat);
       setCategoryPath(path.reverse());
 
