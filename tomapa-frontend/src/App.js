@@ -23,7 +23,8 @@ function App() {
 
   useEffect(() => {
     document.getElementById("htmlelement").setAttribute("data-bs-theme", theme);
-  }, [theme])
+    localStorage.setItem("bstheme", theme);
+  }, [theme]);
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -37,7 +38,7 @@ function App() {
       <CategoriesSidebar partsChanged={partsChanged} />
       <Container className="content-container">
         <Routes>
-          <Route path="/" element={<Home partsChanged={partsChanged}/>} />
+          <Route path="/" element={<Home partsChanged={partsChanged} />} />
           <Route
             path="/part/:id"
             element={<PartView setPartsChanged={setPartsChanged} />}
