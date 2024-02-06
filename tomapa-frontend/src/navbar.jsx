@@ -6,7 +6,7 @@ import {
   FormGroup,
   FormControl,
 } from "react-bootstrap";
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./App.css";
 
@@ -24,15 +24,20 @@ const NavBar = ({ theme, setTheme, setSearchQuery }) => {
       }
     }, 1000);
     return () => clearTimeout(searchDebounce);
-  }, [queryInput])
+  }, [queryInput]);
 
   return (
     <Navbar
       bg="primary"
-      className={`navbar-dark bg-dark fixed-top`}
+      className={
+        theme === "dark"
+          ? `navbar navbar-expand-lg bg-body-tertiary`
+          : `navbar navbar-expand-lg bg-dark`
+      }
+      data-bs-theme={"dark"}
       expand="lg"
     >
-      <Container className="ms-2">
+      <Container className="ms-2 navbar-container me-2">
         <Navbar.Brand
           onClick={() => {
             navigate("/");
@@ -92,10 +97,11 @@ const NavBar = ({ theme, setTheme, setSearchQuery }) => {
               </NavDropdown.Item>
             </NavDropdown>
           </Nav>
-          <FormGroup>
+          <FormGroup className="search-bar">
             <FormControl
               type="text"
               placeholder="Search Parts"
+              expand="lg"
               onChange={(e) => {
                 setQueryInput(e.target.value);
               }}
