@@ -42,6 +42,8 @@ class Database(object):
         db = Database.get()
         db.create_tables(models)
 
+        Database.instance.registered_models.update(set(models))
+
         for model in models:
             getLogger(__name__).debug("Registered table: %s", str(model))
 
@@ -89,6 +91,8 @@ class Database(object):
             # Remove this instance if no valid DB_TYPE is configured
             Database.instance = None
 
+        self.registered_models = set()
+
 
 class Model(PeeweeModel):
     dict_backrefs = {}
@@ -116,12 +120,15 @@ class Model(PeeweeModel):
                     result.update({field.name: value})
 
         for backref in self.dict_backrefs:
-            if backref in fields_to_omit: continue
-            
+            if backref in fields_to_omit:
+                continue
+
             own_name = self.dict_backrefs[backref]
             fields = []
             for field in self.__getattribute__(backref):
-                fields.append(field.as_dict(omit=[own_name] + self.child_omit.get(backref, [])))
+                fields.append(
+                    field.as_dict(omit=[own_name] + self.child_omit.get(backref, []))
+                )
             brjson = {backref: fields}
             if is_safe_json(brjson):
                 result.update(brjson)
