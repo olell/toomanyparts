@@ -27,13 +27,18 @@ class Database(object):
     instance = None
 
     @staticmethod
-    def get():
-        """Returns the current instance of the database connection"""
+    def get_instance():
+        """Returns the current instance of the database"""
         if Database.instance is not None:
-            return Database.instance._db
+            return Database.instance
         else:
             Database()
-            return Database.instance._db
+            return Database.instance
+
+    @staticmethod
+    def get():
+        """Returns the current instance of the database connection"""
+        return Database.get_instance()._db
 
     @staticmethod
     def register_models(*models):
@@ -92,6 +97,31 @@ class Database(object):
             Database.instance = None
 
         self.registered_models = set()
+
+    def export(self):
+        export_data = {}
+        for model in self.registered_models:
+            name = model.__name__
+            values = []
+            for row in model.select():
+                row_result = {}
+                for field in row._meta.columns.keys():
+                    row_result.update({field: row.__getattribute__(field)})
+                values.append(row_result)
+            export_data.update({name: values})
+        return export_data
+
+    def import_data(self, data):
+        for model_name in data.keys():
+            model = None
+            for possible_model in self.registered_models:
+                if possible_model.__name__ == model_name:
+                    model = possible_model
+            if model is None:
+                continue
+
+            for row in data[model_name]:
+                model(**row).save(1)
 
 
 class Model(PeeweeModel):

@@ -2,7 +2,6 @@
 Too Many Parts Server
 """
 
-
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
@@ -46,11 +45,6 @@ with app.app_context():
 
     Database()
 
-    # Fill database with default content (if not already filled)
-    from tomapa.models.content import create_content
-
-    create_content()
-
 # API Resources
 from tomapa.api.categories import CategoriesApi
 from tomapa.api.categories import CategoryApi
@@ -71,6 +65,8 @@ from tomapa.api.search import SearchApi
 from tomapa.api.bom import BOMsApi
 from tomapa.api.bom import BOMApi
 from tomapa.api.bom import BOMImageApi
+from tomapa.api.admin import DatabaseExportApi
+from tomapa.api.admin import DatabaseImportApi
 
 flask_api.add_resource(CategoriesApi, "/api/categories")
 flask_api.add_resource(CategoryApi, "/api/category")
@@ -91,6 +87,8 @@ flask_api.add_resource(SearchApi, "/api/search")
 flask_api.add_resource(BOMsApi, "/api/boms")
 flask_api.add_resource(BOMApi, "/api/bom")
 flask_api.add_resource(BOMImageApi, "/api/bom/image")
+flask_api.add_resource(DatabaseExportApi, "/api/db/export")
+flask_api.add_resource(DatabaseImportApi, "/api/db/import")
 
 app.logger.info("Hey there!")
 

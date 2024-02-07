@@ -88,6 +88,15 @@ const NavBar = ({ theme, setTheme, setSearchQuery }) => {
             >
               Scanner
             </Nav.Link>
+            <Nav.Link
+              onClick={() => {
+                navigate("/admin");
+              }}
+              active={location.pathname == "/admin"}
+            >
+              Admin
+            </Nav.Link>
+
             <NavDropdown title="Theme" className="float-end">
               <NavDropdown.Item onClick={() => setTheme("dark")}>
                 Dark

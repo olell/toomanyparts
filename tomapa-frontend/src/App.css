@@ -37,6 +37,13 @@
   }
 }
 
+@media screen and (orientation:landscape) {
+  .content-container-large {
+    padding-left: 10rem;
+    padding-right: 10rem;
+  }
+}
+
 .property-filter {
   display: flex;
 }
@@ -68,8 +75,14 @@
   overflow-y: scroll;
   padding-bottom: 100px;
 }
+.content-container-large {
+  left: unset !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+}
 .navbar {
   padding-left: 0!important;
+  z-index: 1100;
 }
 .navbar-container {
   max-width: 100% !important;

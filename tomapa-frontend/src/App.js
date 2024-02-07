@@ -1,6 +1,6 @@
 import "./App.css";
 import { Container } from "react-bootstrap";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import Home from "./pages/home";
@@ -14,6 +14,7 @@ import SearchPage from "./pages/search";
 import BOMPage from "./pages/bom_list";
 import BOMView from "./pages/bom_view";
 import PartScanner from "./pages/part_scanner";
+import AdminPage from "./pages/admin";
 
 function App() {
   const [partsChanged, setPartsChanged] = useState(0);
@@ -27,6 +28,13 @@ function App() {
   }, [theme]);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const location = useLocation();
+
+  const [showCategories, setShowCategories] = useState(true);
+
+  useEffect(() => {
+    setShowCategories(["/admin"].indexOf(location.pathname) == -1);
+  }, [location.pathname]);
 
   return (
     <>
@@ -35,8 +43,18 @@ function App() {
         setTheme={setTheme}
         setSearchQuery={setSearchQuery}
       />
-      <CategoriesSidebar partsChanged={partsChanged} />
-      <Container className="content-container">
+      {showCategories ? (
+        <CategoriesSidebar partsChanged={partsChanged} />
+      ) : (
+        <></>
+      )}
+      <Container
+        className={
+          showCategories
+            ? "content-container"
+            : "content-container content-container-large"
+        }
+      >
         <Routes>
           <Route path="/" element={<Home partsChanged={partsChanged} />} />
           <Route
@@ -52,6 +70,7 @@ function App() {
           <Route path="/bom" element={<BOMPage />} />
           <Route path="/bomview/:id" element={<BOMView />} />
           <Route path="/scanner" element={<PartScanner />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </Container>
     </>
