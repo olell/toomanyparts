@@ -15,6 +15,7 @@ import BOMPage from "./pages/bom_list";
 import BOMView from "./pages/bom_view";
 import PartScanner from "./pages/part_scanner";
 import AdminPage from "./pages/admin";
+import AdminSidebar from "./components/admin_sidebar";
 
 function App() {
   const [partsChanged, setPartsChanged] = useState(0);
@@ -31,9 +32,12 @@ function App() {
   const location = useLocation();
 
   const [showCategories, setShowCategories] = useState(true);
+  const [showAdminSidebar, setShowAdminSidebar] = useState(false);
 
   useEffect(() => {
-    setShowCategories(["/admin"].indexOf(location.pathname) == -1);
+    let isAdminPage = location.pathname.match(/admin/g) !== null;
+    setShowCategories(!isAdminPage);
+    setShowAdminSidebar(isAdminPage);
   }, [location.pathname]);
 
   return (
@@ -48,13 +52,8 @@ function App() {
       ) : (
         <></>
       )}
-      <Container
-        className={
-          showCategories
-            ? "content-container"
-            : "content-container content-container-large"
-        }
-      >
+      {showAdminSidebar ? <AdminSidebar /> : <></>}
+      <Container className={"content-container"}>
         <Routes>
           <Route path="/" element={<Home partsChanged={partsChanged} />} />
           <Route
@@ -70,7 +69,7 @@ function App() {
           <Route path="/bom" element={<BOMPage />} />
           <Route path="/bomview/:id" element={<BOMView />} />
           <Route path="/scanner" element={<PartScanner />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin/:page" element={<AdminPage />} />
         </Routes>
       </Container>
     </>

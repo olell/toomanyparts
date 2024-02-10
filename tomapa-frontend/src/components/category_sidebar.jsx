@@ -82,7 +82,7 @@ const CategoriesSidebar = ({ partsChanged }) => {
 
   return (
     <>
-      <div className="category-sidebar">
+      <div className="sidebar">
         <Row>
           <Col className="ms-2 mt-1">
             <h4>Categories</h4>

@@ -90,9 +90,9 @@ const NavBar = ({ theme, setTheme, setSearchQuery }) => {
             </Nav.Link>
             <Nav.Link
               onClick={() => {
-                navigate("/admin");
+                navigate("/admin/database");
               }}
-              active={location.pathname == "/admin"}
+              active={location.pathname.match(/admin/) !== null}
             >
               Admin
             </Nav.Link>
