@@ -27,8 +27,8 @@ const CreatePart = ({ setPartsChanged }) => {
   // Data inputs
   const [description, setDescription] = useState("");
   const [stock, setStock] = useState(0);
-  const [location, setLocation] = useState(1);
-  const [category, setCategory] = useState(1);
+  const [location, setLocation] = useState(null);
+  const [category, setCategory] = useState(null);
 
   // Properties object
   // key is a unique id, value is the property object
@@ -196,7 +196,8 @@ const CreatePart = ({ setPartsChanged }) => {
           console.log("adding props", propertiesToAdd, "to", properties);
           setProperties({ ...properties, ...propertiesToAdd });
         }
-      });
+      })
+      .catch(() => {});
   }, [category]);
 
   useEffect(() => {

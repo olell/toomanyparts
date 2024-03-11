@@ -18,7 +18,7 @@ function CategoryAccordion(categories, navigate) {
         className="accordion-flush categories-accordion"
         defaultActiveKey="0"
       >
-        <ListGroup>
+        <ListGroup className="categories-list">
           {categories?.map((category) => (
             <>
               {category.parts_count > 0 ? (
@@ -26,7 +26,7 @@ function CategoryAccordion(categories, navigate) {
                   {category.children.length > 0 ? (
                     <Accordion.Item eventKey={category.name}>
                       <Accordion.Header>
-                        <Badge bg="secondary" className="me-2">
+                        <Badge bg="info" className="me-2">
                           {category.parts_count}
                         </Badge>
                         {category.name}
@@ -46,7 +46,7 @@ function CategoryAccordion(categories, navigate) {
                       }}
                       className="border-0 list-group-item-action"
                     >
-                      <Badge bg="secondary" className="me-2">
+                      <Badge bg="primary" className="me-2">
                         {category.parts_count}
                       </Badge>
                       {category.name}
@@ -82,17 +82,19 @@ const CategoriesSidebar = ({ partsChanged }) => {
 
   return (
     <>
-      <div className="category-sidebar">
+      <div className="sidebar">
         <Row>
           <Col className="ms-2 mt-1">
             <h4>Categories</h4>
           </Col>
         </Row>
-        {CategoryAccordion(categories, navigate)}
+        <Row className="categories-row">
+          {CategoryAccordion(categories, navigate)}
+        </Row>
       </div>
     </>
   );
 };
 
 export default CategoriesSidebar;
-export {CategoriesSidebar, CategoryAccordion};
+export { CategoriesSidebar, CategoryAccordion };

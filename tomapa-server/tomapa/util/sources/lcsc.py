@@ -14,18 +14,22 @@ from io import StringIO
 import re
 import os
 
+
 def most_similar_string(target, candidates):
     ta = re.split("\\-| |\\,|\\_|\\(|\\)|\\/", target.lower())
     best = None
     best_score = -1
     for candidate in candidates:
         tb = re.split("\\-| |\\,|\\_|\\(|\\)|\\/", candidate.lower())
-        score = sum([sum([a in b or b in a for a in ta if a != '']) for b in tb if b != ''])
+        score = sum(
+            [sum([a in b or b in a for a in ta if a != ""]) for b in tb if b != ""]
+        )
         if score > best_score:
             best_score = score
             best = candidate
 
     return best
+
 
 lcsc_param_to_property = {
     "param_10835_n": ["r", "Resistance"],
@@ -52,7 +56,12 @@ def get_lcsc_data(pc, data_as_obj=False):
         return
 
     # Else requesting new data from lcsc
-    req = requests.get(f"https://wmsc.lcsc.com/wmsc/product/detail?productCode={pc}")
+    req = requests.get(
+        f"https://wmsc.lcsc.com/wmsc/product/detail?productCode={pc}",
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
+        },
+    )
 
     if req.status_code == 200:
         data = req.json().get("result", {})
@@ -189,9 +198,10 @@ def import_lcsc_order(csv_text, create_missing_parts=True):
             av_part_prop is not None
             and PartProperty.select()
             .where(
-                PartProperty.name=="src" &
-                PartProperty.value=="LCSC" & 
-                PartProperty.part_id==av_part_prop.part_id
+                PartProperty.name
+                == "src" & PartProperty.value
+                == "LCSC" & PartProperty.part_id
+                == av_part_prop.part_id
             )
             .count()
         ):
@@ -199,7 +209,6 @@ def import_lcsc_order(csv_text, create_missing_parts=True):
             part.stock += qty
             part.save()
             modified_parts.append(part)
-        
 
         # If not part is found, create a new one
         if part is None and create_missing_parts:
@@ -207,17 +216,16 @@ def import_lcsc_order(csv_text, create_missing_parts=True):
             if part_data is None:
                 continue
 
-            default_location = StorageLocation.get_or_none(StorageLocation.id==1)
+            default_location = StorageLocation.get_or_none(StorageLocation.id == 1)
             category = part_data.get("category", None)
-            if category is None: # defaulting to first category
-                category = PartCategory.get_or_none(PartCategory.id==1)
-
+            if category is None:  # defaulting to first category
+                category = PartCategory.get_or_none(PartCategory.id == 1)
 
             part = Part(
                 stock=qty,
                 category=category,
                 description=part_data.get("description", ""),
-                location=default_location
+                location=default_location,
             )
             part.save(1)
 
@@ -228,7 +236,7 @@ def import_lcsc_order(csv_text, create_missing_parts=True):
                     display_name=property["display_name"],
                     value=str(property["value"]),
                     value_type=property["value_type"],
-                    unit=property.get("unit", None)
+                    unit=property.get("unit", None),
                 )
                 prop.save(1)
 
@@ -241,7 +249,9 @@ def import_lcsc_order(csv_text, create_missing_parts=True):
                     },
                 )
                 if req.status_code == 200:
-                    filename = str(uuid.uuid4()) + "." + image_url.rsplit(".", 1)[1].lower()
+                    filename = (
+                        str(uuid.uuid4()) + "." + image_url.rsplit(".", 1)[1].lower()
+                    )
                     with open(
                         os.path.join(current_app.config["UPLOAD_DIR"], filename), "wb+"
                     ) as target:
@@ -260,7 +270,9 @@ def import_lcsc_order(csv_text, create_missing_parts=True):
                 )
                 if req.status_code == 200:
                     filename = (
-                        str(uuid.uuid4()) + "." + datasheet_url.rsplit(".", 1)[1].lower()
+                        str(uuid.uuid4())
+                        + "."
+                        + datasheet_url.rsplit(".", 1)[1].lower()
                     )
                     with open(
                         os.path.join(current_app.config["UPLOAD_DIR"], filename), "wb+"
@@ -269,10 +281,7 @@ def import_lcsc_order(csv_text, create_missing_parts=True):
 
                     doc = PartDocument(part=part, type="datasheet", path=filename)
                     doc.save()
-            
+
             created_parts.append(part)
-    
-    return {
-        "modified": modified_parts,
-        "created": created_parts
-    }
+
+    return {"modified": modified_parts, "created": created_parts}
