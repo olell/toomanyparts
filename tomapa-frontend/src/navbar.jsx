@@ -82,6 +82,14 @@ const NavBar = ({ theme, setTheme, setSearchQuery }) => {
             </Nav.Link>
             <Nav.Link
               onClick={() => {
+                navigate("/observer");
+              }}
+              active={location.pathname == "/observer"}
+            >
+              Observer
+            </Nav.Link>
+            <Nav.Link
+              onClick={() => {
                 navigate("/scanner");
               }}
               active={location.pathname == "/scanner"}
