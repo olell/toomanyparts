@@ -116,7 +116,7 @@ const ObserverPage = () => {
 
     return (
         <>
-        <h1>Part Observations</h1>
+        <h1>Part Monitoring</h1>
         <hr />
 
         {!!modalObservationPart ? (<>
@@ -150,7 +150,7 @@ const ObserverPage = () => {
                     });
                 }}
               >
-                Delete Observation
+                Remove Part from Monitoring!
               </Button>
               <Button
                 variant="secondary"
@@ -163,7 +163,7 @@ const ObserverPage = () => {
         
         </>) : (<></>)}
 
-        <h4>Add Observation:</h4>
+        <h4>Add Part to Monitoring:</h4>
         <Form.Group>
             <Form.Label>Source</Form.Label>
             <Form.Select
@@ -200,12 +200,12 @@ const ObserverPage = () => {
                 });
           }}
         >
-          Observe Part
+          Monitor Part!
         </Button>
         
         <hr></hr>
 
-        <h4>Active Observations:</h4>
+        <h4>Active Monitorings:</h4>
         <ListGroup>
             {
                 observedParts.map((op) => (<>
