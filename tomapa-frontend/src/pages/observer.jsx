@@ -70,7 +70,7 @@ const ObserverPage = () => {
     const [stockData, setStockData] = useState([]);
     const [priceData, setPriceData] = useState([]);
 
-    const [newObsSource, setNewObsSource] = useState("");
+    const [newObsSource, setNewObsSource] = useState("lcsc");
     const [newObsPartCode, setNewObsPartCode] = useState("");
 
 
