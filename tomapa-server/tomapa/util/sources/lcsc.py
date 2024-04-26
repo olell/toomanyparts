@@ -76,6 +76,10 @@ def get_lcsc_data(pc, data_as_obj=False):
     description = data.get("productIntroEn", None)
     if description is not None:
         output.update({"description": description})
+    
+    title = data.get("title", None)
+    if title is not None:
+        output.update({"title": title})
 
     # "static" fields
     package = data.get("encapStandard", None)
@@ -144,6 +148,8 @@ def get_lcsc_data(pc, data_as_obj=False):
                     )
                     continue
 
+    output.update({"properties": properties})
+
     # "docs"
     datasheet = data.get("pdfUrl", None)
     if datasheet is not None:
@@ -166,7 +172,20 @@ def get_lcsc_data(pc, data_as_obj=False):
                 else:
                     output.update({"category": category})
 
-    output.update({"properties": properties})
+    # Stock & Price
+    try:
+        stock = data.get("stockNumber", -1)
+        price_list = data.get("productPriceList", None)
+        price = -1
+        if price_list is not None and len(price_list) > 0:
+            smallest_ladder = min(list(map(lambda x: x["ladder"], price_list)))
+            for entry in price_list:
+                if entry["ladder"] == smallest_ladder:
+                    price = entry.get("usdPrice", -1)
+        
+        output.update({"stock": stock, "price": price})
+    except:
+        print("Exception while reading stock and price from lcsc")
 
     return output
 

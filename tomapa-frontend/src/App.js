@@ -16,6 +16,7 @@ import BOMView from "./pages/bom_view";
 import PartScanner from "./pages/part_scanner";
 import AdminPage from "./pages/admin";
 import AdminSidebar from "./components/admin_sidebar";
+import ObserverPage from "./pages/observer";
 
 function App() {
   const [partsChanged, setPartsChanged] = useState(0);
@@ -70,6 +71,7 @@ function App() {
           <Route path="/bomview/:id" element={<BOMView />} />
           <Route path="/scanner" element={<PartScanner />} />
           <Route path="/admin/:page" element={<AdminPage />} />
+          <Route path="/observer" element={<ObserverPage /> } />
         </Routes>
       </Container>
     </>
