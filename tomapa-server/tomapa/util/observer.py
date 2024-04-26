@@ -25,7 +25,8 @@ def do_observations():
     for op in observed_parts:
         try:
             data = do_single_observation(op.source, op.part_code)
-            if data is not None:
+            print(data)
+            if data is None:
                 continue
         
             stock, price, _name = data
@@ -36,6 +37,7 @@ def do_observations():
             )
 
             observation.save(1)
+            print(f"Saved observation for {op.name} ({stock}, {price}, {_name})")
             
         except Exception as e:
             print("Error while observing parts", e)
