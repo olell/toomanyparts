@@ -17,7 +17,7 @@ class ObservedPart(Model):
         observations = (
             Observation.select()
             .where(Observation.observed_part == self)
-            .order_by(Observation.created_at)
+            .order_by(Observation.created_at.desc())
             .limit(100)
         )
         return {
