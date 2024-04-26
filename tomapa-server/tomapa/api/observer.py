@@ -69,6 +69,10 @@ class ObservedPartApi(Resource):
         Creates a new part observation
         """
         new_observed_part = load_schema_or_abort(ObservedPartPostSchema)
+
+        if ObservedPart.get_or_none((ObservedPart.source == new_observed_part.source) & (ObservedPart.part_code == new_observed_part.part_code)) is not None:
+            return {"message": "that part is already being observed!"}, 409
+
         result = do_single_observation(new_observed_part.source, new_observed_part.part_code)
         if result is None:
             return {"message": "Failed to run initial observation, this might mean that the part code is unknown."}, 422
