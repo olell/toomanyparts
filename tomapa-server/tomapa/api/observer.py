@@ -8,6 +8,8 @@ from tomapa.models.observer import Observation
 
 from tomapa.api import load_schema_or_abort
 
+from tomapa.util.observer import do_observations
+
 from marshmallow import Schema, fields, post_load
 
 
@@ -68,6 +70,7 @@ class ObservedPartApi(Resource):
         """
         new_observed_part = load_schema_or_abort(ObservedPartPostSchema)
         new_observed_part.save()
+        do_observations([new_observed_part])
         return new_observed_part.as_dict(), 201
     
     def delete(self):

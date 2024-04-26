@@ -3,8 +3,11 @@ from tomapa.models.observer import Observation
 
 from tomapa.util.sources.lcsc import get_lcsc_data
 
-def do_observations():
-    observed_parts = ObservedPart.select()
+def do_observations(parts=None):
+    if parts is None:
+        observed_parts = ObservedPart.select()
+    else:
+        observed_parts = parts
 
     for op in observed_parts:
         try:
