@@ -29,7 +29,7 @@ def do_observations():
             if data is None:
                 continue
         
-            stock, price, _name = data
+            price, stock, _name = data
             observation = Observation(
                 observed_part=op,
                 stock=stock,
