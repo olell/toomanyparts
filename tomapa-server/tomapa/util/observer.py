@@ -3,32 +3,41 @@ from tomapa.models.observer import Observation
 
 from tomapa.util.sources.lcsc import get_lcsc_data
 
-def do_observations(parts=None):
-    if parts is None:
-        observed_parts = ObservedPart.select()
-    else:
-        observed_parts = parts
+def do_single_observation(source, part_code):
+    if source.lower() == "lcsc":
+        data = get_lcsc_data(part_code)
+        price = data.get("price", -1)
+        stock = data.get("stock", -1)
+        name = data.get("title", "")
+
+        if price >= 0 and stock >= 0:
+            return price, stock, name
+
+    if source.lower() == "mouser":
+        ...
+
+    return None
+
+
+def do_observations():
+    observed_parts = ObservedPart.select()
 
     for op in observed_parts:
         try:
-            if op.source.lower() == "lcsc":
-                data = get_lcsc_data(op.part_code)
-                price = data.get("price", -1)
-                stock = data.get("stock", -1)
+            data = do_single_observation(op.source, op.part_code)
+            if data is not None:
+                continue
+        
+            stock, price, _name = data
+            observation = Observation(
+                observed_part=op,
+                stock=stock,
+                usd_price=price
+            )
 
-                if price >= 0 and stock >= 0:
-                    observation = Observation(
-                        observed_part=op,
-                        stock=stock,
-                        usd_price=price
-                    )
-
-                    observation.save(1)
-
-
-            if op.source.lower() == "mouser":
-                ...
-        except:
-            print("Error while observing parts")
+            observation.save(1)
+            
+        except Exception as e:
+            print("Error while observing parts", e)
 
     print("Observations done")

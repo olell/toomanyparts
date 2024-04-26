@@ -11,6 +11,8 @@ class ObservedPart(Model):
 
     part_code = peewee.CharField()
 
+    name = peewee.CharField()
+
     def dict_hook(self):
         observations = (
             Observation.select()

@@ -8,7 +8,7 @@ from tomapa.models.observer import Observation
 
 from tomapa.api import load_schema_or_abort
 
-from tomapa.util.observer import do_observations
+from tomapa.util.observer import do_single_observation
 
 from marshmallow import Schema, fields, post_load
 
@@ -69,8 +69,19 @@ class ObservedPartApi(Resource):
         Creates a new part observation
         """
         new_observed_part = load_schema_or_abort(ObservedPartPostSchema)
+        result = do_single_observation(new_observed_part.source, new_observed_part.part_code)
+        if result is None:
+            return {"message": "Failed to run initial observation, this might mean that the part code is unknown."}, 422
+        price, stock, name = result
+        new_observed_part.name = name
         new_observed_part.save()
-        do_observations([new_observed_part])
+
+        Observation(
+            observed_part=new_observed_part,
+            usd_price=price,
+            stock=stock
+        ).save(1)
+
         return new_observed_part.as_dict(), 201
     
     def delete(self):

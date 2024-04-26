@@ -76,6 +76,10 @@ def get_lcsc_data(pc, data_as_obj=False):
     description = data.get("productIntroEn", None)
     if description is not None:
         output.update({"description": description})
+    
+    title = data.get("title", None)
+    if title is not None:
+        output.update({"title": title})
 
     # "static" fields
     package = data.get("encapStandard", None)
