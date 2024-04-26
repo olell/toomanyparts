@@ -8,6 +8,13 @@ from flask_cors import CORS
 
 from flask import send_from_directory
 
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
+
+from datetime import datetime
+
+import os
+
 from logging.config import dictConfig
 
 # Creating flask app
@@ -38,12 +45,23 @@ dictConfig(
     }
 )
 
-
 with app.app_context():
     # Init database in app context
     from tomapa.models import Database
 
     Database()
+
+    # Scheduleing
+    from tomapa.util.observer import do_observations
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=do_observations, trigger="interval", seconds=21600) # 21600 Seconds = 6 Hours
+    scheduler.start()
+
+    # run observation job once on start
+    for job in scheduler.get_jobs():
+        job.modify(next_run_time=datetime.now())
+
+    atexit.register(lambda: scheduler.shutdown())
 
 # API Resources
 from tomapa.api.categories import CategoriesApi
@@ -67,6 +85,7 @@ from tomapa.api.bom import BOMApi
 from tomapa.api.bom import BOMImageApi
 from tomapa.api.admin import DatabaseExportApi
 from tomapa.api.admin import DatabaseImportApi
+from tomapa.api.observer import ObservedPartApi
 
 flask_api.add_resource(CategoriesApi, "/api/categories")
 flask_api.add_resource(CategoryApi, "/api/category")
@@ -89,6 +108,7 @@ flask_api.add_resource(BOMApi, "/api/bom")
 flask_api.add_resource(BOMImageApi, "/api/bom/image")
 flask_api.add_resource(DatabaseExportApi, "/api/db/export")
 flask_api.add_resource(DatabaseImportApi, "/api/db/import")
+flask_api.add_resource(ObservedPartApi, "/api/observer/part")
 
 app.logger.info("Hey there!")
 

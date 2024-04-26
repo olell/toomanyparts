@@ -8,3 +8,4 @@ uuid
 gunicorn
 flask-cors
 psycopg2-binary
+apscheduler
