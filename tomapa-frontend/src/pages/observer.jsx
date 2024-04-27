@@ -20,6 +20,8 @@ import {
   import 'chartjs-adapter-date-fns';
   import {de} from 'date-fns/locale';
 
+  import {Trash2, Truck} from "react-feather";
+
 
 ChartJS.register(
     CategoryScale,
@@ -49,6 +51,8 @@ const ObserverPage = () => {
     const [newObsPartCode, setNewObsPartCode] = useState("");
 
     const [scaleMin, setScaleMin] = useState(undefined);
+
+    const [sourceUrl, setSourceUrl] = useState("");
 
     const chart_options = {
         responsive: true,
@@ -160,6 +164,36 @@ const ObserverPage = () => {
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
+                <Button
+                    variant="link"
+                    size="sm"
+                    className="text-danger float-end"
+                    onClick={() => {
+                        let data = {
+                            id: modalObservationPart.id,
+                        };
+                        axios.delete(getApiEndpoint("/observer/part"), { data: data }).then((response) => {
+                            if (response.status === 204) {
+                                loadObservations();
+                                setShowObservationModal(false);
+                            }
+                        });
+                    }}
+                >
+                    <Trash2 />
+                </Button>
+
+                {sourceUrl ? (
+                    <a
+                    href={sourceUrl}
+                    target="_blank"
+                    className="pt-1 text-info float-end"
+                    >
+                    <Truck />
+                    </a>
+                ) : (
+                    <></>
+                )}
                 <Line options={chart_options} data={chartData} />
                 <Form.Group className="mb-3" id="formGridCheckbox">
                     <Form.Check type="checkbox" label="Use 0 as minimum" 
@@ -169,22 +203,6 @@ const ObserverPage = () => {
                 </Form.Group>
             </Modal.Body>
             <Modal.Footer>
-              <Button
-                variant="danger"
-                onClick={() => {
-                    let data = {
-                        id: modalObservationPart.id,
-                    };
-                    axios.delete(getApiEndpoint("/observer/part"), { data: data }).then((response) => {
-                        if (response.status === 204) {
-                            loadObservations();
-                            setShowObservationModal(false);
-                        }
-                    });
-                }}
-              >
-                Remove Part from Monitoring!
-              </Button>
               <Button
                 variant="secondary"
                 onClick={() => setShowObservationModal(false)}
@@ -251,6 +269,13 @@ const ObserverPage = () => {
                         setChartLabels(op.observations.map((op) => (op.created_at * 1000)).reverse());
                         setStockData(op.observations.map((op) => op.stock).reverse());
                         setPriceData(op.observations.map((op) => op.usd_price).reverse());
+
+                        if (!!op.source && !!op.part_code) {
+                            if (op.source.toLowerCase() == "lcsc")
+                                setSourceUrl(`https://www.lcsc.com/product-detail/${op.part_code}.html`);
+                            if (op.source.toLowerCase() == "mouser")
+                                setSourceUrl(`https://www.mouser.de/ProductDetail/${op.part_code}`);
+                        }
                     }}>
                     <b>{op.name}</b> ({op.source.toUpperCase()} - {op.part_code})
                 </ListGroup.Item>
