@@ -10,53 +10,30 @@ import {
     LinearScale,
     PointElement,
     LineElement,
+    TimeScale,
     Title,
     Tooltip,
     Legend,
   } from 'chart.js';
   import { Line } from 'react-chartjs-2';
 
+  import 'chartjs-adapter-date-fns';
+  import {de} from 'date-fns/locale';
+
+  import {Trash2, Truck} from "react-feather";
+
 
 ChartJS.register(
     CategoryScale,
     LinearScale,
     PointElement,
+    TimeScale,
     LineElement,
+    
     Title,
     Tooltip,
     Legend
   );
-
-export const chart_options = {
-    responsive: true,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    stacked: false,
-    plugins: {
-      title: {
-        display: true,
-        text: 'History',
-      },
-    },
-    scales: {
-      y: {
-        type: 'linear' ,
-        display: true,
-        position: 'left',
-      },
-      y1: {
-        type: 'linear',
-        min: 0,
-        display: true,
-        position: 'right',
-        grid: {
-          drawOnChartArea: false,
-        },
-      },
-    },
-  };
 
 const ObserverPage = () => {
 
@@ -73,7 +50,61 @@ const ObserverPage = () => {
     const [newObsSource, setNewObsSource] = useState("lcsc");
     const [newObsPartCode, setNewObsPartCode] = useState("");
 
+    const [scaleMin, setScaleMin] = useState(undefined);
 
+    const [sourceUrl, setSourceUrl] = useState("");
+
+    const chart_options = {
+        responsive: true,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        stacked: false,
+            plugins: {
+                title: {
+                display: true,
+                text: 'History',
+            },
+        },
+        adapters: {
+            date: {
+                locale: de
+            }
+        },
+        scales: {
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'hour',
+                    displayFormats: {
+                      hour: 'dd.MM. HH:mm'
+                    },
+                    tooltipFormat: 'dd.MM. HH:mm'
+                },
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 10,
+                },
+            },
+            y: {
+                type: 'linear' ,
+                min: scaleMin,
+                display: true,
+                position: 'left',
+            },
+            y1: {
+                type: 'linear',
+                min: scaleMin,
+                display: true,
+                position: 'right',
+                grid: {
+                    drawOnChartArea: false,
+                },
+            },
+        },
+    };
+    
     const chartData = {
         labels: chartLabels,
         datasets: [
@@ -116,7 +147,7 @@ const ObserverPage = () => {
 
     return (
         <>
-        <h1>Part Observations</h1>
+        <h1>Part Monitoring</h1>
         <hr />
 
         {!!modalObservationPart ? (<>
@@ -133,25 +164,45 @@ const ObserverPage = () => {
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
+                <Button
+                    variant="link"
+                    size="sm"
+                    className="text-danger float-end"
+                    onClick={() => {
+                        let data = {
+                            id: modalObservationPart.id,
+                        };
+                        axios.delete(getApiEndpoint("/observer/part"), { data: data }).then((response) => {
+                            if (response.status === 204) {
+                                loadObservations();
+                                setShowObservationModal(false);
+                            }
+                        });
+                    }}
+                >
+                    <Trash2 />
+                </Button>
+
+                {sourceUrl ? (
+                    <a
+                    href={sourceUrl}
+                    target="_blank"
+                    className="pt-1 text-info float-end"
+                    >
+                    <Truck />
+                    </a>
+                ) : (
+                    <></>
+                )}
                 <Line options={chart_options} data={chartData} />
+                <Form.Group className="mb-3" id="formGridCheckbox">
+                    <Form.Check type="checkbox" label="Use 0 as minimum" 
+                    onChange={(e) => {
+                        setScaleMin(e.target.checked ? 0 : undefined);
+                    }}/>
+                </Form.Group>
             </Modal.Body>
             <Modal.Footer>
-              <Button
-                variant="danger"
-                onClick={() => {
-                    let data = {
-                        id: modalObservationPart.id,
-                    };
-                    axios.delete(getApiEndpoint("/observer/part"), { data: data }).then((response) => {
-                        if (response.status === 204) {
-                            loadObservations();
-                            setShowObservationModal(false);
-                        }
-                    });
-                }}
-              >
-                Delete Observation
-              </Button>
               <Button
                 variant="secondary"
                 onClick={() => setShowObservationModal(false)}
@@ -163,7 +214,7 @@ const ObserverPage = () => {
         
         </>) : (<></>)}
 
-        <h4>Add Observation:</h4>
+        <h4>Add Part to Monitoring:</h4>
         <Form.Group>
             <Form.Label>Source</Form.Label>
             <Form.Select
@@ -200,12 +251,12 @@ const ObserverPage = () => {
                 });
           }}
         >
-          Observe Part
+          Monitor Part!
         </Button>
         
         <hr></hr>
 
-        <h4>Active Observations:</h4>
+        <h4>Active Monitorings:</h4>
         <ListGroup>
             {
                 observedParts.map((op) => (<>
@@ -215,9 +266,16 @@ const ObserverPage = () => {
                         setModalObservationPart(op);
                         setShowObservationModal(!showObservationModal);
 
-                        setChartLabels(op.observations.map((op) => (new Date(op.created_at * 1000).toLocaleString("de-DE"))).reverse());
+                        setChartLabels(op.observations.map((op) => (op.created_at * 1000)).reverse());
                         setStockData(op.observations.map((op) => op.stock).reverse());
                         setPriceData(op.observations.map((op) => op.usd_price).reverse());
+
+                        if (!!op.source && !!op.part_code) {
+                            if (op.source.toLowerCase() == "lcsc")
+                                setSourceUrl(`https://www.lcsc.com/product-detail/${op.part_code}.html`);
+                            if (op.source.toLowerCase() == "mouser")
+                                setSourceUrl(`https://www.mouser.de/ProductDetail/${op.part_code}`);
+                        }
                     }}>
                     <b>{op.name}</b> ({op.source.toUpperCase()} - {op.part_code})
                 </ListGroup.Item>

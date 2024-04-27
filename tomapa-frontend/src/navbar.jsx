@@ -86,7 +86,7 @@ const NavBar = ({ theme, setTheme, setSearchQuery }) => {
               }}
               active={location.pathname == "/observer"}
             >
-              Observer
+              Monitoring
             </Nav.Link>
             <Nav.Link
               onClick={() => {
