@@ -10,53 +10,28 @@ import {
     LinearScale,
     PointElement,
     LineElement,
+    TimeScale,
     Title,
     Tooltip,
     Legend,
   } from 'chart.js';
   import { Line } from 'react-chartjs-2';
 
+  import 'chartjs-adapter-date-fns';
+  import {de} from 'date-fns/locale';
+
 
 ChartJS.register(
     CategoryScale,
     LinearScale,
     PointElement,
+    TimeScale,
     LineElement,
+    
     Title,
     Tooltip,
     Legend
   );
-
-export const chart_options = {
-    responsive: true,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    stacked: false,
-    plugins: {
-      title: {
-        display: true,
-        text: 'History',
-      },
-    },
-    scales: {
-      y: {
-        type: 'linear' ,
-        display: true,
-        position: 'left',
-      },
-      y1: {
-        type: 'linear',
-        min: 0,
-        display: true,
-        position: 'right',
-        grid: {
-          drawOnChartArea: false,
-        },
-      },
-    },
-  };
 
 const ObserverPage = () => {
 
@@ -73,7 +48,59 @@ const ObserverPage = () => {
     const [newObsSource, setNewObsSource] = useState("lcsc");
     const [newObsPartCode, setNewObsPartCode] = useState("");
 
+    const [scaleMin, setScaleMin] = useState(undefined);
 
+    const chart_options = {
+        responsive: true,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        stacked: false,
+            plugins: {
+                title: {
+                display: true,
+                text: 'History',
+            },
+        },
+        adapters: {
+            date: {
+                locale: de
+            }
+        },
+        scales: {
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'hour',
+                    displayFormats: {
+                      hour: 'dd.MM. HH:mm'
+                    },
+                    tooltipFormat: 'dd.MM. HH:mm'
+                },
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 10,
+                },
+            },
+            y: {
+                type: 'linear' ,
+                min: scaleMin,
+                display: true,
+                position: 'left',
+            },
+            y1: {
+                type: 'linear',
+                min: scaleMin,
+                display: true,
+                position: 'right',
+                grid: {
+                    drawOnChartArea: false,
+                },
+            },
+        },
+    };
+    
     const chartData = {
         labels: chartLabels,
         datasets: [
@@ -134,6 +161,12 @@ const ObserverPage = () => {
             </Modal.Header>
             <Modal.Body>
                 <Line options={chart_options} data={chartData} />
+                <Form.Group className="mb-3" id="formGridCheckbox">
+                    <Form.Check type="checkbox" label="Use 0 as minimum" 
+                    onChange={(e) => {
+                        setScaleMin(e.target.checked ? 0 : undefined);
+                    }}/>
+                </Form.Group>
             </Modal.Body>
             <Modal.Footer>
               <Button
@@ -215,7 +248,7 @@ const ObserverPage = () => {
                         setModalObservationPart(op);
                         setShowObservationModal(!showObservationModal);
 
-                        setChartLabels(op.observations.map((op) => (new Date(op.created_at * 1000).toLocaleString("de-DE"))).reverse());
+                        setChartLabels(op.observations.map((op) => (op.created_at * 1000)).reverse());
                         setStockData(op.observations.map((op) => op.stock).reverse());
                         setPriceData(op.observations.map((op) => op.usd_price).reverse());
                     }}>

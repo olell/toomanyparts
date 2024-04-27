@@ -9,6 +9,8 @@
     "axios": "^1.4.0",
     "bootstrap": "^5.2.3",
     "chart.js": "^4.4.2",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "date-fns": "^3.6.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.4",
     "react-chartjs-2": "^5.2.0",
