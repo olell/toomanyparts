@@ -57,7 +57,7 @@ def get_lcsc_data(pc, data_as_obj=False):
 
     # Else requesting new data from lcsc
     req = requests.get(
-        f"https://wmsc.lcsc.com/wmsc/product/detail?productCode={pc}",
+        f"https://wmsc.lcsc.com/ftps/wm/product/detail?productCode={pc}",
         headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
         },
@@ -76,7 +76,7 @@ def get_lcsc_data(pc, data_as_obj=False):
     description = data.get("productIntroEn", None)
     if description is not None:
         output.update({"description": description})
-    
+
     title = data.get("title", None)
     if title is not None:
         output.update({"title": title})
@@ -182,7 +182,7 @@ def get_lcsc_data(pc, data_as_obj=False):
             for entry in price_list:
                 if entry["ladder"] == smallest_ladder:
                     price = entry.get("usdPrice", -1)
-        
+
         output.update({"stock": stock, "price": price})
     except:
         print("Exception while reading stock and price from lcsc")
