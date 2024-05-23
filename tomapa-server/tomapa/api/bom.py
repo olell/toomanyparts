@@ -181,10 +181,11 @@ class BOMApi(Resource):
             # Creating BOMPartDesignators
             for designator in designators:
                 pos_data = footprint_positions.get(designator, None)
-                x = y = None
+                x = y = -1
                 if pos_data is not None:
-                    x = pos_data.get("x", None)
-                    y = pos_data.get("y", None)
+                    x = pos_data.get("x", -1)
+                    y = pos_data.get("y", -1)
+
                 bom_part_designator = BOMPartDesignator(
                     bom_part=bom_part, name=designator, location_x=x, location_y=y
                 )
