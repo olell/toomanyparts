@@ -124,7 +124,7 @@ const CreatePart = ({ setPartsChanged }) => {
                 name: p.name,
                 displayName: p.display_name,
                 value: p.value,
-                valueType: p.value_type,
+                value_type: p.value_type,
                 unit: p.unit,
               };
               updatedProps[existing.id] = existing;
@@ -219,7 +219,7 @@ const CreatePart = ({ setPartsChanged }) => {
         name: !!p.name ? p.name : undefined,
         display_name: !!p.displayName ? p.displayName : undefined,
         value: p.value.toString(),
-        value_type: !!p.valueType ? p.valueType.toString() : undefined,
+        value_type: !!p.value_type ? p.value_type.toString() : undefined,
         unit: !!p.unit ? p.unit : undefined,
       }));
     setResultObject(result);
@@ -328,7 +328,7 @@ const CreatePart = ({ setPartsChanged }) => {
                   [newPropId]: {
                     name: `property_${Object.keys(properties).length + 1}`,
                     value: "",
-                    valueType: "str",
+                    value_type: "str",
                     unit: 0,
                     displayName: "",
                     id: newPropId,

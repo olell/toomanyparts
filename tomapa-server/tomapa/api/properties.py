@@ -50,7 +50,7 @@ class PartPropertyPostSchema(Schema):
         required=True, validate=validate.OneOf(["float", "int", "str", "bool"])
     )
 
-    unit = fields.Integer()
+    unit = fields.Integer(allow_none=True, default=None)
 
     @post_load
     def create_property(self, data, **_):

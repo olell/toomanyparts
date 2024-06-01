@@ -18,6 +18,7 @@ import {
 import { generateDisplayName } from "../util/part";
 import QuestionModal from "../components/question_modal";
 import { getApiEndpoint } from "../util/api";
+import PropertyEdit from "../components/property_edit";
 
 function propertyValueRepresentation(property) {
   if (property.value_type == "str") return property.value;
@@ -57,6 +58,8 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
   const [units, setUnits] = useState();
   const [sourceUrl, setSourceUrl] = useState(null);
 
+  const [newProperty, setNewProperty] = useState(null);
+
   const updatePart = (attributes) => {
     let data = {
       id: part.id,
@@ -68,6 +71,23 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
       }
     });
   };
+
+  const addProperty = (attributes) => {
+    let data = { part: part.id, ...attributes };
+
+    axios.post(getApiEndpoint("/part/property"), data).then((response) => {
+      if (response.status === 200) {
+        axios
+          .get(getApiEndpoint("/part"), { params: { id: id } })
+          .then((response) => {
+            if (response.status === 200) {
+              setPart(response.data);
+            }
+          });
+      }
+    });
+  };
+
   const updateProperty = (property, attributes) => {
     let data = {
       id: property.id,
@@ -468,6 +488,37 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
                 .map((property) =>
                   editMode ? (
                     <tr>
+                      <td>{property.name}</td>
+                      <td className="d-flex" style={{ width: "100%" }}>
+                        {(() => console.log("-->", property))()}
+                        <PropertyEdit
+                          property={{
+                            name: property.name,
+                            displayName: property.display_name,
+                            unit: !!property.hr_unit
+                              ? property.hr_unit?.id
+                              : property.unit?.id,
+                            value_type: property.value_type,
+                            value: !!property.hr_unit
+                              ? property.hr_value
+                              : property.value,
+                          }}
+                          onChange={(changes) => {
+                            console.log("changes", changes);
+                            updateProperty(property, {
+                              name: changes.name,
+                              display_name: changes.displayName,
+                              value: String(changes.value),
+                              value_type: changes.value_type,
+                              unit: changes.unit,
+                            });
+                          }}
+                          onDelete={() => {
+                            deleteProperty({ id: property.id });
+                          }}
+                        />
+                      </td>
+                      {/*
                       <td className="property-table-name fw-bold">PROPERTY</td>
                       <td className="property-table-value d-flex">
                         <Form.Control
@@ -523,6 +574,7 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
                           <MinusCircle />
                         </Button>
                       </td>
+                        */}
                     </tr>
                   ) : (
                     <tr>
@@ -546,6 +598,59 @@ const PartView = ({ setPartsChanged, showControls = true, partId = null }) => {
                     </tr>
                   )
                 )}
+              {editMode ? (
+                <>
+                  {!!newProperty ? (
+                    <>
+                      <tr>
+                        <td>New Property</td>
+                        <td className="d-flex">
+                          <PropertyEdit
+                            property={newProperty}
+                            onCheck={(p) => {
+                              addProperty({
+                                name: p.name,
+                                display_name: p.displayName,
+                                value: p.value,
+                                value_type: p.value_type,
+                                unit: p.unit,
+                              });
+                              setNewProperty(null);
+                            }}
+                            showCheck={true}
+                          />
+                        </td>
+                      </tr>
+                    </>
+                  ) : (
+                    <>
+                      <tr>
+                        <td>New Property</td>
+                        <td>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-success"
+                            onClick={() => {
+                              setNewProperty({
+                                name: "-",
+                                displayName: "-",
+                                value: "0",
+                                value_type: "int",
+                                unit: null,
+                              });
+                            }}
+                          >
+                            <PlusCircle />
+                          </Button>
+                        </td>
+                      </tr>
+                    </>
+                  )}
+                </>
+              ) : (
+                <></>
+              )}
               <tr className="mb-2">
                 <td className="property-table-name fw-bold">Description</td>
                 <td className="property-table-value">
