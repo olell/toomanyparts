@@ -52,6 +52,7 @@ def create_property_templates():
         ("f_min", "Min. Frequency", float, "Hz"),
         ("f_max", "Min. Frequency", float, "Hz"),
         ("tcc", "Temperature Coefficient", str, None),
+        ("min_stock", "Minimum Stock", int, None),
     ]
 
     for row in data:
