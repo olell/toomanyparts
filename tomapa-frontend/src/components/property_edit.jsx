@@ -1,5 +1,5 @@
 import { Col, Form, Button } from "react-bootstrap";
-import { MinusCircle } from "react-feather";
+import { MinusCircle, CehckCircle, CheckCircle } from "react-feather";
 import { useEffect, useState, useId } from "react";
 import axios from "axios";
 import { getApiEndpoint } from "../util/api";
@@ -15,6 +15,8 @@ const PropertyEdit = ({
   property,
   onChange = (p) => {},
   onDelete = (p) => {},
+  onCheck = (p) => {},
+  showCheck = false,
 }) => {
   // Data retrieved from API
   const [units, setUnits] = useState();
@@ -33,7 +35,7 @@ const PropertyEdit = ({
     name: name,
     displayName: displayName,
     value: value,
-    valueType: valueType,
+    value_type: valueType,
     unit: unit,
   };
 
@@ -45,7 +47,7 @@ const PropertyEdit = ({
     setName(property.name);
     setDisplayName(property.displayName);
     setValue(property.value);
-    setValueType(property.valueType);
+    setValueType(property.value_type);
     setUnit(property.unit);
   }, [property]);
 
@@ -104,7 +106,7 @@ const PropertyEdit = ({
       name: name,
       displayName: displayName,
       value: value,
-      valueType: valueType,
+      value_type: valueType,
       unit: unit,
     };
     onChange(obj);
@@ -188,17 +190,35 @@ const PropertyEdit = ({
         </Form.Select>
       </Col>
       <Col className="col-md-1">
-        {/* Delete Button, calling onDelete on call */}
-        <Button
-          variant="link"
-          size="sm"
-          className="text-danger"
-          onClick={(e) => {
-            onDelete(obj);
-          }}
-        >
-          <MinusCircle />
-        </Button>
+        {showCheck ? (
+          <>
+            {/* Check Button, calling onCheck on click */}
+            <Button
+              variant="link"
+              size="sm"
+              className="text-success"
+              onClick={(e) => {
+                onCheck(obj);
+              }}
+            >
+              <CheckCircle />
+            </Button>
+          </>
+        ) : (
+          <>
+            {/* Delete Button, calling onDelete on call */}
+            <Button
+              variant="link"
+              size="sm"
+              className="text-danger"
+              onClick={(e) => {
+                onDelete(obj);
+              }}
+            >
+              <MinusCircle />
+            </Button>
+          </>
+        )}
       </Col>
     </>
   );

@@ -51,10 +51,17 @@ with app.app_context():
 
     Database()
 
+    from tomapa.models.content import create_content
+
+    create_content()
+
     # Scheduleing
     from tomapa.util.observer import do_observations
+
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=do_observations, trigger="interval", seconds=21600) # 21600 Seconds = 6 Hours
+    scheduler.add_job(
+        func=do_observations, trigger="interval", seconds=21600
+    )  # 21600 Seconds = 6 Hours
     scheduler.start()
 
     # run observation job once on start
@@ -86,6 +93,7 @@ from tomapa.api.bom import BOMImageApi
 from tomapa.api.admin import DatabaseExportApi
 from tomapa.api.admin import DatabaseImportApi
 from tomapa.api.observer import ObservedPartApi
+from tomapa.api.stock import StockApi
 
 flask_api.add_resource(CategoriesApi, "/api/categories")
 flask_api.add_resource(CategoryApi, "/api/category")
@@ -109,6 +117,7 @@ flask_api.add_resource(BOMImageApi, "/api/bom/image")
 flask_api.add_resource(DatabaseExportApi, "/api/db/export")
 flask_api.add_resource(DatabaseImportApi, "/api/db/import")
 flask_api.add_resource(ObservedPartApi, "/api/observer/part")
+flask_api.add_resource(StockApi, "/api/stock/notifications")
 
 app.logger.info("Hey there!")
 
