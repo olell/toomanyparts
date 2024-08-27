@@ -30,6 +30,15 @@ class SearchGetSchema(Schema):
         tokens = query.split()
         query = query.lower()
 
+        # search by id
+        if query.startswith("#"):
+            try:
+                part_id = int(query[1:])
+                part_by_id = Part.get_or_none(Part.id == part_id)
+                if part_by_id is not None:
+                    return [part_by_id]
+            except:
+                pass
 
         all_parts = Part.select()
         all_units = list(Unit.select())
