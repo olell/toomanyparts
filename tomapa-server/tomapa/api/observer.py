@@ -76,14 +76,13 @@ class ObservedPartApi(Resource):
         result = do_single_observation(new_observed_part.source, new_observed_part.part_code)
         if result is None:
             return {"message": "Failed to run initial observation, this might mean that the part code is unknown."}, 422
-        price, price_euro, stock, name = result
+        price, stock, name = result
         new_observed_part.name = name
         new_observed_part.save()
 
         Observation(
             observed_part=new_observed_part,
             usd_price=price,
-            eur_price=price_euro,
             stock=stock
         ).save(1)
 
