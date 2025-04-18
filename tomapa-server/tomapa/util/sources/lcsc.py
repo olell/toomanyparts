@@ -176,14 +176,15 @@ def get_lcsc_data(pc, data_as_obj=False):
     try:
         stock = data.get("stockNumber", -1)
         price_list = data.get("productPriceList", None)
-        price = -1
+        price = price_euro = -1
         if price_list is not None and len(price_list) > 0:
             smallest_ladder = min(list(map(lambda x: x["ladder"], price_list)))
             for entry in price_list:
                 if entry["ladder"] == smallest_ladder:
                     price = entry.get("usdPrice", -1)
+                    price_euro = entry.get("eurPrice", -1)
 
-        output.update({"stock": stock, "price": price})
+        output.update({"stock": stock, "price": price, "price_euro": price_euro})
     except:
         print("Exception while reading stock and price from lcsc")
 
