@@ -35,6 +35,7 @@ class Observation(Model):
 
     stock = peewee.IntegerField()
     usd_price = peewee.FloatField()
+    eur_price = peewee.FloatField()
 
     created_at = peewee.DateTimeField(default=datetime.now)
 

@@ -46,6 +46,7 @@ const ObserverPage = () => {
     const [chartLabels, setChartLabels] = useState([]);
     const [stockData, setStockData] = useState([]);
     const [priceData, setPriceData] = useState([]);
+    const [priceEurData, setPriceEurData] = useState([]);
 
     const [newObsSource, setNewObsSource] = useState("lcsc");
     const [newObsPartCode, setNewObsPartCode] = useState("");
@@ -121,6 +122,13 @@ const ObserverPage = () => {
             borderColor: 'rgb(53, 162, 235)',
             backgroundColor: 'rgba(53, 162, 235, 0.5)',
             yAxisID: 'y1',
+        },
+        {
+            label: 'Price (€)',
+            data: priceEurData,
+            borderColor: 'rgb(53, 235, 120)',
+            backgroundColor: 'rgba(53, 235, 120, 0.5)',
+            yAxisID: 'y2',
         },
         ],
     };
@@ -269,6 +277,7 @@ const ObserverPage = () => {
                         setChartLabels(op.observations.map((op) => (op.created_at * 1000)).reverse());
                         setStockData(op.observations.map((op) => op.stock).reverse());
                         setPriceData(op.observations.map((op) => op.usd_price).reverse());
+                        setPriceData(op.observations.map((op) => op.eur_price).reverse());
 
                         if (!!op.source && !!op.part_code) {
                             if (op.source.toLowerCase() == "lcsc")
