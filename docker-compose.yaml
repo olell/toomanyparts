@@ -1,6 +1,7 @@
 services:
   backend:
     image: olel/tomapa
+    build: .
     environment:
       LOGGING_LEVEL: INFO
       DB_TYPE: sqlite
